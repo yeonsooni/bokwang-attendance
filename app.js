@@ -1258,6 +1258,54 @@ function notesDialog() {
   }, { top: true });
 }
 
+/* ── 화면 색 ───────────────────────────────────────────────
+   기기마다 따로 기억한다 (공유 데이터가 아니라 각자의 취향) */
+const LS_THEME = 'bokwang.theme.v1';
+const THEMES = [
+  { k: 'blue',   n: '기본 블루',        g: '진하게' },
+  { k: 'sage',   n: '따뜻한 종이·세이지', g: '진하게' },
+  { k: 'mono',   n: '먹색 모노톤',      g: '진하게' },
+  { k: 'mist',   n: '안개 블루',        g: '진하게' },
+  { k: 'clay',   n: '흙빛 테라코타',     g: '진하게' },
+  { k: 'forest', n: '깊은 숲색',        g: '진하게' },
+  { k: 'lav',    n: '차분한 라벤더',     g: '진하게' },
+  { k: 'navy',   n: '네이비·크림',      g: '진하게' },
+  { k: 'sblue',  n: '옅은 블루',        g: '옅게' },
+  { k: 'ssage',  n: '옅은 세이지',       g: '옅게' },
+  { k: 'smono',  n: '옅은 먹색',        g: '옅게' },
+  { k: 'sclay',  n: '옅은 테라코타',     g: '옅게' }
+];
+
+function applyTheme(k) {
+  document.documentElement.dataset.themeName = k || 'blue';
+}
+applyTheme(localStorage.getItem(LS_THEME));
+
+function themeDialog() {
+  const cur = localStorage.getItem(LS_THEME) || 'blue';
+  const row = t => `<button class="theme-opt${t.k === cur ? ' is-on' : ''}" data-theme="${t.k}">
+      <span class="sw" data-sw="${t.k}"><i></i><i class="on"></i><i></i></span>
+      <span class="nm">${esc(t.n)}</span>
+      ${t.k === cur ? '<span class="tick">✓</span>' : ''}
+    </button>`;
+  openSheet(`<h2>화면 색</h2>
+    <p class="sub">이 기기에서만 바뀝니다. 다른 리더 화면은 그대로예요.</p>
+    <p class="group-label">진하게 채우기 — 또렷합니다</p>
+    <div class="theme-list">${THEMES.filter(t => t.g === '진하게').map(row).join('')}</div>
+    <p class="group-label">옅게 채우기 — 눈이 편합니다</p>
+    <div class="theme-list">${THEMES.filter(t => t.g === '옅게').map(row).join('')}</div>
+    <button class="btn block" data-close style="margin-top:16px">닫기</button>`,
+  (sh, close) => {
+    $$('[data-theme]', sh).forEach(b => b.onclick = () => {
+      const k = b.dataset.theme;
+      localStorage.setItem(LS_THEME, k);
+      applyTheme(k);
+      close();
+      toast(`${THEMES.find(t => t.k === k).n} 으로 바꿨어요`);
+    });
+  });
+}
+
 /** 각자 비밀번호를 바꿀 수 있게 — 잊었을 때는 담당자가 콘솔에서 바꿔줘야 한다 */
 function passwordDialog() {
   openSheet(`<h2>비밀번호 변경</h2>
@@ -1404,6 +1452,7 @@ function settingsDialog() {
     <p class="sub">${who ? `<b>${esc(who)}</b> 로 로그인됨 · 리더들과 실시간 공유 중`
                          : '지금은 이 기기에만 저장됩니다.'}</p>
     <div class="menu">
+      <button class="btn" id="s-theme">화면 색 바꾸기</button>
       <button class="btn primary" id="s-sheet">구글 시트로 자동 저장</button>
       <button class="btn" id="s-export">데이터 내보내기 (JSON 백업)</button>
       <button class="btn" id="s-csv">엑셀 파일로 내려받기</button>
@@ -1414,6 +1463,7 @@ function settingsDialog() {
       <button class="btn" data-close>닫기</button>
     </div>`,
   (sh, close) => {
+    $('#s-theme', sh).onclick  = () => { close(); themeDialog(); };
     $('#s-sheet', sh).onclick  = () => { close(); sheetDialog(); };
     $('#s-export', sh).onclick = () => { close(); download(`출석부-백업-${toKey(new Date())}.json`,
       JSON.stringify(S, null, 2), 'application/json'); };
