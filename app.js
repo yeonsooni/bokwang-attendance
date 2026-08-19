@@ -343,10 +343,16 @@ function showLogin(msg) {
   $('#login-msg').hidden = !msg;
 }
 
+/* Firebase 는 형식상 이메일을 요구하지만, 리더는 아이디만 입력하면 되도록
+   뒤에 고정 도메인을 붙인다. 실제로 메일을 받는 주소는 아니다. */
+const ID_DOMAIN = '@bokwang.church';
+const toEmail = id => id.includes('@') ? id : id + ID_DOMAIN;
+
 async function doLogin() {
-  const email = $('#login-email').value.trim();
-  const pw    = $('#login-pw').value;
-  if (!email || !pw) { showLogin('이메일과 비밀번호를 입력해 주세요.'); return; }
+  const id = $('#login-email').value.trim();
+  const pw = $('#login-pw').value;
+  if (!id || !pw) { showLogin('아이디와 비밀번호를 입력해 주세요.'); return; }
+  const email = toEmail(id);
   const btn = $('#login-go');
   btn.disabled = true; btn.textContent = '들어가는 중…';
   try {
@@ -356,7 +362,7 @@ async function doLogin() {
     const code = e?.code ?? '';
     showLogin(
       /invalid-credential|wrong-password|user-not-found/.test(code)
-        ? '이메일 또는 비밀번호가 맞지 않아요.'
+        ? '아이디 또는 비밀번호가 맞지 않아요.'
       : /too-many-requests/.test(code)
         ? '시도가 너무 많았어요. 잠시 뒤 다시 해주세요.'
       : /network/.test(code)
@@ -1252,6 +1258,42 @@ function notesDialog() {
   }, { top: true });
 }
 
+/** 각자 비밀번호를 바꿀 수 있게 — 잊었을 때는 담당자가 콘솔에서 바꿔줘야 한다 */
+function passwordDialog() {
+  openSheet(`<h2>비밀번호 변경</h2>
+    <p class="sub">지금 쓰는 비밀번호를 한 번 더 확인한 뒤 새 비밀번호로 바꿉니다.</p>
+    <label class="field">현재 비밀번호
+      <input type="password" id="pw-old" autocomplete="current-password"></label>
+    <label class="field">새 비밀번호 (6자 이상)
+      <input type="password" id="pw-new" autocomplete="new-password"></label>
+    <label class="field">새 비밀번호 확인
+      <input type="password" id="pw-new2" autocomplete="new-password"></label>
+    <div class="actions">
+      <button class="btn" data-close>취소</button>
+      <button class="btn primary" id="pw-ok">바꾸기</button>
+    </div>`,
+  (sh, close) => {
+    $('#pw-ok', sh).onclick = async () => {
+      const oldPw = $('#pw-old', sh).value, a = $('#pw-new', sh).value, b = $('#pw-new2', sh).value;
+      if (a.length < 6)  { toast('새 비밀번호는 6자 이상이어야 해요'); return; }
+      if (a !== b)       { toast('새 비밀번호가 서로 다릅니다'); return; }
+      try {
+        const m = authRef._mod, user = authRef.currentUser;
+        // 비밀번호 변경은 최근 로그인을 요구한다 → 현재 비밀번호로 한 번 더 확인
+        await m.reauthenticateWithCredential(user,
+          m.EmailAuthProvider.credential(user.email, oldPw));
+        await m.updatePassword(user, a);
+        close(); toast('비밀번호를 바꿨어요');
+      } catch (e) {
+        const c = e?.code ?? '';
+        toast(/invalid-credential|wrong-password/.test(c) ? '현재 비밀번호가 맞지 않아요'
+            : /weak-password/.test(c) ? '비밀번호가 너무 단순해요'
+            : `실패했어요 (${c || e.message})`);
+      }
+    };
+  });
+}
+
 /* ── 구글 시트 자동 저장 ───────────────────────────────────
    체크할 때마다 표 세 장을 통째로 만들어 보낸다(덮어쓰기).
    부분 갱신이 아니라 전체 스냅샷이라 중간에 실패해도 다음 전송에서 회복된다. */
@@ -1356,7 +1398,8 @@ async function verifySave() {
 
 /* ── 설정 ─────────────────────────────────────────────────── */
 function settingsDialog() {
-  const who = authRef?.currentUser?.email;
+  const email = authRef?.currentUser?.email;
+  const who = email ? email.replace(ID_DOMAIN, '') : null;
   openSheet(`<h2>설정</h2>
     <p class="sub">${who ? `<b>${esc(who)}</b> 로 로그인됨 · 리더들과 실시간 공유 중`
                          : '지금은 이 기기에만 저장됩니다.'}</p>
@@ -1366,6 +1409,7 @@ function settingsDialog() {
       <button class="btn" id="s-csv">엑셀 파일로 내려받기</button>
       <button class="btn" id="s-import">백업 불러오기</button>
       <button class="btn danger" id="s-reset">전체 초기화</button>
+      ${who ? '<button class="btn" id="s-pw">비밀번호 변경</button>' : ''}
       ${who ? '<button class="btn" id="s-logout">로그아웃</button>' : ''}
       <button class="btn" data-close>닫기</button>
     </div>`,
@@ -1375,6 +1419,7 @@ function settingsDialog() {
       JSON.stringify(S, null, 2), 'application/json'); };
     $('#s-csv', sh).onclick    = () => { close(); downloadXlsx(); toast('엑셀 파일을 내려받았어요'); };
     $('#s-import', sh).onclick = () => { close(); importDialog(); };
+    $('#s-pw', sh)?.addEventListener('click', () => { close(); passwordDialog(); });
     $('#s-logout', sh)?.addEventListener('click', () => { close(); doLogout(); });
     $('#s-reset', sh).onclick  = () => { close(); confirmDialog('전체 초기화',
       '명단·소그룹·출석 기록이 모두 지워집니다. 먼저 백업을 받아두세요.', '전부 지우기',
