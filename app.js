@@ -1479,15 +1479,74 @@ function renderSettings() {
   $('#s-import').onclick = () => importDialog();
   $('#s-pw')?.addEventListener('click', passwordDialog);
   $('#s-logout')?.addEventListener('click', doLogout);
-  $('#s-reset').onclick  = () => confirmDialog('전체 초기화',
-    '명단·소그룹·출석 기록이 모두 지워집니다. 먼저 백업을 받아두세요.', '전부 지우기',
-    async () => { await backend.replaceAll(emptyState()); toast('초기화했어요'); });
+  $('#s-reset').onclick  = resetDialog;
   $$s('[data-theme]').forEach(b => b.onclick = () => {
     const k = b.dataset.theme;
     localStorage.setItem(LS_THEME, k);
     applyTheme(k);
     renderSettings();
     toast(`${THEMES.find(t => t.k === k).n} 으로 바꿨어요`);
+  });
+}
+
+/** 전체 초기화 — 되돌릴 수 없으므로 비밀번호를 한 번 더 받는다.
+ *  관리자 암호를 코드에 박아두면 저장소가 공개라 누구나 볼 수 있다.
+ *  대신 로그인한 본인 계정의 비밀번호를 Firebase 가 서버에서 검증한다. */
+function resetDialog() {
+  const user = authRef?.currentUser;
+  const 명단 = S.members.length;
+  const 주   = Object.keys(S.attendance ?? {}).length;
+  const 메모 = Object.values(S.notes ?? {}).reduce((n, d) => n + Object.keys(d).length, 0);
+
+  const wipe = async () => {
+    await backend.replaceAll(emptyState());
+    toast('초기화했어요');
+  };
+
+  openSheet(`<h2>전체 초기화</h2>
+    <p class="sub">아래 기록이 <b>전부 사라지고 되돌릴 수 없습니다.</b>
+    다른 리더들의 화면에서도 함께 지워집니다.</p>
+    <div class="wipe-list">
+      <div><b>${명단}</b><span>명단</span></div>
+      <div><b>${주}</b><span>주 출석 기록</span></div>
+      <div><b>${메모}</b><span>메모</span></div>
+    </div>
+    <button class="btn block" id="r-backup" style="margin-bottom:16px">먼저 백업 받기</button>
+    ${user
+      ? `<label class="field">계속하려면 <b>${esc((user.email ?? '').replace(ID_DOMAIN, ''))}</b> 비밀번호를 입력하세요
+           <input type="password" id="r-pw" autocomplete="current-password" placeholder="••••••••"></label>`
+      : `<label class="field">계속하려면 <b>초기화</b> 라고 입력하세요
+           <input type="text" id="r-word" autocapitalize="none" placeholder="초기화"></label>`}
+    <div class="actions">
+      <button class="btn" data-close>취소</button>
+      <button class="btn danger" id="r-ok">전부 지우기</button>
+    </div>`,
+  (sh, close) => {
+    $('#r-backup', sh).onclick = () => download(`출석부-백업-${toKey(new Date())}.json`,
+      JSON.stringify(S, null, 2), 'application/json');
+
+    $('#r-ok', sh).onclick = async () => {
+      if (!user) {                                   // 로그인 전(이 기기에만 저장)에는 확인 문구로
+        if ($('#r-word', sh).value.trim() !== '초기화') { toast('“초기화” 라고 정확히 입력해 주세요'); return; }
+        close(); await wipe(); return;
+      }
+      const pw = $('#r-pw', sh).value;
+      if (!pw) { toast('비밀번호를 입력해 주세요'); return; }
+      const btn = $('#r-ok', sh);
+      btn.disabled = true; btn.textContent = '확인 중…';
+      try {
+        const m = authRef._mod;
+        await m.reauthenticateWithCredential(user, m.EmailAuthProvider.credential(user.email, pw));
+      } catch (e) {
+        const c = e?.code ?? '';
+        btn.disabled = false; btn.textContent = '전부 지우기';
+        toast(/invalid-credential|wrong-password/.test(c) ? '비밀번호가 맞지 않아요'
+            : /too-many-requests/.test(c) ? '시도가 너무 많았어요. 잠시 뒤 다시 해주세요'
+            : `확인에 실패했어요 (${c || e.message})`);
+        return;
+      }
+      close(); await wipe();
+    };
   });
 }
 
