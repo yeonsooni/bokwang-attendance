@@ -10,9 +10,9 @@
      Primary  딥 블루  — 브랜드, 선택 상태, 데이터 막대
      Accent   에메랄드 — 긍정 지표(출석률)에만, 아껴서
      Surface  쿨 그레이 계열 — 배경은 매우 밝게, 카드는 순백 */
-  --primary:       #1e40af;
-  --primary-hover: #1d3fa0;
-  --primary-soft:  #eff4ff;
+  --primary:       #41609c;
+  --primary-hover: #375488;
+  --primary-soft:  #eef2f9;
   --primary-ink:   #ffffff;
 
   --accent:        #10b981;
@@ -44,7 +44,7 @@
 
   /* ── 여백 ───────────────────────────────────────────── */
   --pad-card: 22px;
-  --gutter:   20px;
+  --gutter:   24px;
 
   --spring: cubic-bezier(.34, 1.4, .64, 1);
   --font: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo",
@@ -54,9 +54,9 @@
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
     color-scheme: dark;
-    --primary:       #3b82f6;
-    --primary-hover: #60a5fa;
-    --primary-soft:  #17233f;
+    --primary:       #5a86c9;
+    --primary-hover: #7099d6;
+    --primary-soft:  #1b2740;
     --primary-ink:   #ffffff;
     --accent:        #34d399;
     --accent-soft:   #0d2b22;
@@ -82,7 +82,7 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --primary:#3b82f6; --primary-hover:#60a5fa; --primary-soft:#17233f; --primary-ink:#fff;
+  --primary:#5a86c9; --primary-hover:#7099d6; --primary-soft:#1b2740; --primary-ink:#fff;
   --accent:#34d399; --accent-soft:#0d2b22;
   --plane:#0b1120; --surface:#131c2e; --surface-2:#1c2740; --backdrop:#060a13;
   --text-primary:#f1f5f9; --text-secondary:#a8b6ca; --text-muted:#6b7c94; --hairline:#24304a;
@@ -157,7 +157,7 @@ main {
 .app-header {
   flex: none;
   display: flex; align-items: flex-end; gap: 12px;
-  padding: calc(env(safe-area-inset-top) + 26px) var(--gutter) 20px;
+  padding: calc(max(env(safe-area-inset-top), 16px) + 18px) var(--gutter) 20px;
 }
 .brand { flex: 1; min-width: 0; }
 .eyebrow {
@@ -261,8 +261,8 @@ main {
 .switch input { width: 15px; height: 15px; accent-color: var(--primary); margin: 0; }
 
 /* ── 이름 격자 ────────────────────────────────────────────── */
-/* 폰에서는 가로 4개 고정 — 넓은 화면에서만 열이 늘어난다 */
-.grid { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* 폰에서는 가로 5개 고정 — 넓은 화면에서만 열이 늘어난다 */
+.grid { display: grid; gap: 8px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
 @media (min-width: 560px) {
   .grid { gap: 8px; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
 }
@@ -281,9 +281,9 @@ main {
   background: var(--surface); border: 1px solid var(--hairline);
   color: var(--text-primary);
   /* 가로가 좁아졌으므로 좌우 여백만 줄이고 세로 높이는 그대로 유지한다 */
-  border-radius: var(--r-card); padding: 18px 6px;
-  font-size: 14.5px; font-weight: 600; text-align: center; letter-spacing: -.3px;
-  min-height: 68px; display: flex; align-items: center; justify-content: center;
+  border-radius: 13px; padding: 13px 3px;
+  font-size: 13px; font-weight: 600; text-align: center; letter-spacing: -.4px;
+  min-height: 56px; display: flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow-sm);
   /* 색은 즉시 바뀌어야 '눌렀다'는 느낌이 난다 — 튕김만 스프링으로 길게 */
   transition: transform .26s var(--spring), background .07s linear,
