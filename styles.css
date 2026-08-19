@@ -797,14 +797,3 @@ body.in-settings #btn-settings .ico-gear  { display: none; }
 body.in-settings #btn-settings .ico-close { display: block; }
 body.in-settings #btn-settings { background: var(--surface-2); }
 
-/* 초기화 확인 — 무엇이 사라지는지 숫자로 먼저 보여준다 */
-.wipe-list { display: flex; gap: 8px; margin: 0 0 18px; }
-.wipe-list > div {
-  flex: 1; padding: 13px 8px; text-align: center;
-  background: var(--surface-2); border-radius: var(--r-ctrl);
-}
-.wipe-list b {
-  display: block; font-size: 21px; font-weight: 700; color: var(--danger);
-  letter-spacing: -.6px; font-variant-numeric: tabular-nums;
-}
-.wipe-list span { display: block; margin-top: 3px; font-size: 11px; color: var(--text-muted); }
