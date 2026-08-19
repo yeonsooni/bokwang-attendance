@@ -1444,20 +1444,37 @@ async function verifySave() {
 function settingsDialog() {
   const email = authRef?.currentUser?.email;
   const who = email ? email.replace(ID_DOMAIN, '') : null;
+
+  // 하는 일끼리 묶는다 — 평평한 목록이면 급할 때 찾기 어렵다
   openSheet(`<h2>설정</h2>
     <p class="sub">${who ? `<b>${esc(who)}</b> 로 로그인됨 · 리더들과 실시간 공유 중`
                          : '지금은 이 기기에만 저장됩니다.'}</p>
+
+    ${who ? `<p class="group-label">계정</p>
     <div class="menu">
-      <button class="btn" id="s-theme">화면 색 바꾸기</button>
-      <button class="btn primary" id="s-sheet">구글 시트로 자동 저장</button>
-      <button class="btn" id="s-export">데이터 내보내기 (JSON 백업)</button>
-      <button class="btn" id="s-csv">엑셀 파일로 내려받기</button>
+      <button class="btn" id="s-pw">비밀번호 변경</button>
+      <button class="btn" id="s-logout">로그아웃</button>
+    </div>` : ''}
+
+    <p class="group-label">파일</p>
+    <div class="menu">
+      <button class="btn primary" id="s-csv">엑셀 파일로 내려받기</button>
+      <button class="btn" id="s-sheet">구글 시트로 자동 저장</button>
+      <button class="btn" id="s-export">전체 백업 받기 (JSON)</button>
       <button class="btn" id="s-import">백업 불러오기</button>
+    </div>
+
+    <p class="group-label">앱 설정</p>
+    <div class="menu">
+      <button class="btn" id="s-theme">화면 색</button>
+    </div>
+
+    <p class="group-label danger-label">되돌릴 수 없음</p>
+    <div class="menu">
       <button class="btn danger" id="s-reset">전체 초기화</button>
-      ${who ? '<button class="btn" id="s-pw">비밀번호 변경</button>' : ''}
-      ${who ? '<button class="btn" id="s-logout">로그아웃</button>' : ''}
-      <button class="btn" data-close>닫기</button>
-    </div>`,
+    </div>
+
+    <button class="btn block" data-close style="margin-top:18px">닫기</button>`,
   (sh, close) => {
     $('#s-theme', sh).onclick  = () => { close(); themeDialog(); };
     $('#s-sheet', sh).onclick  = () => { close(); sheetDialog(); };

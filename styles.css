@@ -756,3 +756,8 @@ main {
 .theme-opt .sw[data-sw="ssage"] { --sw-surface:#fffdf9; --sw-line:#e6e1d6; --sw-fill:#e0e8dd; --sw-edge:#a3b0a3; }
 .theme-opt .sw[data-sw="smono"] { --sw-surface:#ffffff; --sw-line:#e3e3df; --sw-fill:#e4e4e0; --sw-edge:#888886; }
 .theme-opt .sw[data-sw="sclay"] { --sw-surface:#fffcfa; --sw-line:#e8ded7; --sw-fill:#f0ded5; --sw-edge:#c9a192; }
+
+/* 설정 시트의 구역 제목 — 위험한 항목은 색으로 미리 알린다 */
+.sheet .group-label { margin: 20px 0 8px; }
+.sheet .group-label:first-of-type { margin-top: 4px; }
+.group-label.danger-label { color: var(--danger); }
