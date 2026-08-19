@@ -4,8 +4,9 @@
  *               attendance:{ "YYYY-MM-DD": { memberId:true } } }
  */
 
+import { FIREBASE_CONFIG } from './firebase-config.js';
+
 const LS_STATE  = 'bokwang.attendance.v1';
-const LS_CONFIG = 'bokwang.sync.v1';
 
 /* ── 유틸 ─────────────────────────────────────────────────── */
 const $  = (s, r = document) => r.querySelector(s);
@@ -119,8 +120,8 @@ function LocalBackend() {
 }
 
 /* ── 백엔드: Firebase Firestore ───────────────────────────── */
-function FirebaseBackend(cfg) {
-  let db, fb, room, unsubs = [];
+function FirebaseBackend(auth) {
+  let db, fb, unsubs = [];
   const cache = { members: new Map(), groups: new Map(), attendance: new Map(), notes: new Map() };
   let onChange = () => {};
 
@@ -131,22 +132,15 @@ function FirebaseBackend(cfg) {
     notes: Object.fromEntries(cache.notes)
   });
 
-  const col = n => fb.collection(db, 'rooms', room, n);
-  const doc = (n, id) => fb.doc(db, 'rooms', room, n, id);
+  const col = n => fb.collection(db, n);
+  const doc = (n, id) => fb.doc(db, n, id);
 
   return {
     mode: 'cloud',
     async start(cb) {
       onChange = cb;
-      room = cfg.roomId;
-      const app  = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-      const auth = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
       fb = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-
-      const a = app.initializeApp(cfg.firebase);
-      const authRef = auth.getAuth(a);
-      await auth.signInAnonymously(authRef);
-      db = fb.getFirestore(a);
+      db = fb.getFirestore(auth.app);
 
       unsubs.push(fb.onSnapshot(col('members'), s => {
         cache.members.clear();
@@ -294,25 +288,90 @@ const sessionKeys = () =>
   Object.keys(S.attendance).filter(k => presentCount(k) > 0).sort();
 
 /* ── 부팅 ─────────────────────────────────────────────────── */
+/* ── 로그인 ────────────────────────────────────────────────
+   리더 계정(이메일·비밀번호)으로만 들어올 수 있다. 계정은 Firebase 콘솔에서
+   관리자가 직접 만들며, 앱에는 가입 기능이 없다 — 아무나 못 들어오게. */
+let authRef = null;
+
 async function boot() {
-  const cfg = readConfig();
-  setSync(cfg ? 'connecting' : 'local', cfg ? '연결 중…' : '로컬 모드 (이 기기에만 저장)');
+  if (!FIREBASE_CONFIG) {                    // 아직 설정 전 → 이 기기에만 저장
+    setSync('local', '이 기기에만 저장');
+    backend = LocalBackend();
+    await backend.start(onState);
+    return;
+  }
+
+  setSync('connecting', '연결 중…');
   try {
-    backend = cfg ? FirebaseBackend(cfg) : LocalBackend();
-    await backend.start(next => { S = next; lastSavedAt = Date.now(); render(); queueSheetPush(); });
-    if (cfg) setSync('cloud', '공유 중');
+    const appMod  = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    const authMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+    const app = appMod.initializeApp(FIREBASE_CONFIG);
+    authRef = authMod.getAuth(app);
+    authRef.app = app;
+    authRef._mod = authMod;
+
+    // 로그인 상태가 바뀔 때마다 화면을 갈아끼운다 (새로고침해도 로그인 유지)
+    authMod.onAuthStateChanged(authRef, async user => {
+      if (user) { await startCloud(user); }
+      else      { showLogin(); }
+    });
   } catch (e) {
     console.error(e);
-    setSync('error', '연결 실패 — 로컬 모드로 동작');
-    backend = LocalBackend();
-    await backend.start(next => { S = next; lastSavedAt = Date.now(); render(); queueSheetPush(); });
-    toast('Firebase 연결 실패: ' + (e?.message ?? e));
+    setSync('error', '연결 실패');
+    showLogin(`Firebase 연결에 실패했어요: ${e?.message ?? e}`);
   }
 }
-function readConfig() {
-  try { return JSON.parse(localStorage.getItem(LS_CONFIG) || 'null'); } catch { return null; }
+
+const onState = next => { S = next; lastSavedAt = Date.now(); render(); queueSheetPush(); };
+
+async function startCloud(user) {
+  $('#login').hidden = true;
+  setSync('cloud', user.email ?? '로그인됨');
+  backend = FirebaseBackend(authRef);
+  try {
+    await backend.start(onState);
+  } catch (e) {
+    console.error(e);
+    setSync('error', '데이터를 못 불러왔어요');
+    toast('데이터를 못 불러왔어요: ' + (e?.message ?? e));
+  }
 }
-/** 교회 이름 줄에 동기화 상태를 덧붙인다 (로컬 모드면 교회 이름만) */
+
+function showLogin(msg) {
+  $('#login').hidden = false;
+  $('#login-msg').textContent = msg ?? '';
+  $('#login-msg').hidden = !msg;
+}
+
+async function doLogin() {
+  const email = $('#login-email').value.trim();
+  const pw    = $('#login-pw').value;
+  if (!email || !pw) { showLogin('이메일과 비밀번호를 입력해 주세요.'); return; }
+  const btn = $('#login-go');
+  btn.disabled = true; btn.textContent = '들어가는 중…';
+  try {
+    await authRef._mod.signInWithEmailAndPassword(authRef, email, pw);
+    $('#login-pw').value = '';
+  } catch (e) {
+    const code = e?.code ?? '';
+    showLogin(
+      /invalid-credential|wrong-password|user-not-found/.test(code)
+        ? '이메일 또는 비밀번호가 맞지 않아요.'
+      : /too-many-requests/.test(code)
+        ? '시도가 너무 많았어요. 잠시 뒤 다시 해주세요.'
+      : /network/.test(code)
+        ? '인터넷 연결을 확인해 주세요.'
+        : `로그인에 실패했어요 (${code || e.message})`);
+  }
+  btn.disabled = false; btn.textContent = '들어가기';
+}
+
+async function doLogout() {
+  if (!authRef) return;
+  await authRef._mod.signOut(authRef);
+  location.reload();
+}
+
 function setSync(mode, label) {
   $('#sync-label').textContent = mode === 'local' ? '보광중앙교회' : `보광중앙교회 · ${label}`;
 }
@@ -1297,25 +1356,26 @@ async function verifySave() {
 
 /* ── 설정 ─────────────────────────────────────────────────── */
 function settingsDialog() {
-  const cfg = readConfig();
+  const who = authRef?.currentUser?.email;
   openSheet(`<h2>설정</h2>
-    <p class="sub">${cfg ? `실시간 공유 중 · 방 코드 <b>${esc(cfg.roomId)}</b>` : '지금은 이 기기에만 저장되는 <b>로컬 모드</b>입니다.'}</p>
+    <p class="sub">${who ? `<b>${esc(who)}</b> 로 로그인됨 · 리더들과 실시간 공유 중`
+                         : '지금은 이 기기에만 저장됩니다.'}</p>
     <div class="menu">
       <button class="btn primary" id="s-sheet">구글 시트로 자동 저장</button>
-      <button class="btn" id="s-sync">${cfg ? '공유 설정 변경' : '여러 명이 공유하도록 설정'}</button>
       <button class="btn" id="s-export">데이터 내보내기 (JSON 백업)</button>
-      <button class="btn" id="s-csv">출석표 CSV 내려받기</button>
+      <button class="btn" id="s-csv">엑셀 파일로 내려받기</button>
       <button class="btn" id="s-import">백업 불러오기</button>
       <button class="btn danger" id="s-reset">전체 초기화</button>
+      ${who ? '<button class="btn" id="s-logout">로그아웃</button>' : ''}
       <button class="btn" data-close>닫기</button>
     </div>`,
   (sh, close) => {
     $('#s-sheet', sh).onclick  = () => { close(); sheetDialog(); };
-    $('#s-sync', sh).onclick   = () => { close(); syncDialog(); };
     $('#s-export', sh).onclick = () => { close(); download(`출석부-백업-${toKey(new Date())}.json`,
       JSON.stringify(S, null, 2), 'application/json'); };
-    $('#s-csv', sh).onclick    = () => { close(); download(`출석부-${toKey(new Date())}.csv`, buildCSV(), 'text/csv'); };
+    $('#s-csv', sh).onclick    = () => { close(); downloadXlsx(); toast('엑셀 파일을 내려받았어요'); };
     $('#s-import', sh).onclick = () => { close(); importDialog(); };
+    $('#s-logout', sh)?.addEventListener('click', () => { close(); doLogout(); });
     $('#s-reset', sh).onclick  = () => { close(); confirmDialog('전체 초기화',
       '명단·소그룹·출석 기록이 모두 지워집니다. 먼저 백업을 받아두세요.', '전부 지우기',
       async () => { await backend.replaceAll(emptyState()); toast('초기화했어요'); }); };
@@ -1372,6 +1432,117 @@ function buildCSV() {
   return '﻿' + csv;   // 엑셀 한글 깨짐 방지
 }
 
+/* ── 엑셀(.xlsx) 만들기 ────────────────────────────────────
+   xlsx 는 XML 몇 장을 zip 으로 묶은 것이다. 외부 라이브러리 없이
+   압축 없는(stored) zip 을 직접 써서 진짜 엑셀 파일을 만든다. */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+const crc32 = bytes => {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+};
+
+function zipFile(entries) {
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0;
+
+  const u16 = n => [n & 0xFF, (n >>> 8) & 0xFF];
+  const u32 = n => [n & 0xFF, (n >>> 8) & 0xFF, (n >>> 16) & 0xFF, (n >>> 24) & 0xFF];
+
+  for (const { name, text } of entries) {
+    const nameB = enc.encode(name), data = enc.encode(text);
+    const crc = crc32(data);
+    const local = [...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0),
+                   ...u32(crc), ...u32(data.length), ...u32(data.length),
+                   ...u16(nameB.length), ...u16(0)];
+    parts.push(new Uint8Array(local), nameB, data);
+    central.push({ nameB, crc, size: data.length, offset });
+    offset += local.length + nameB.length + data.length;
+  }
+
+  const dir = [];
+  for (const c of central) {
+    dir.push(...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0),
+             ...u32(c.crc), ...u32(c.size), ...u32(c.size),
+             ...u16(c.nameB.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(c.offset));
+    dir.push(...c.nameB);
+  }
+  const dirBytes = new Uint8Array(dir);
+  const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0),
+                              ...u16(central.length), ...u16(central.length),
+                              ...u32(dirBytes.length), ...u32(offset), ...u16(0)]);
+  return new Blob([...parts, dirBytes, end], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+}
+
+const xmlEsc = v => String(v).replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));
+
+/** 2차원 배열 → 워크시트 XML. 숫자는 숫자로, 나머지는 글자로 넣는다. */
+function sheetXml(rows) {
+  const body = rows.map((row, r) => {
+    const cells = row.map((v, c) => {
+      const ref = colName(c) + (r + 1);
+      if (typeof v === 'number' && Number.isFinite(v))
+        return `<c r="${ref}"><v>${v}</v></c>`;
+      return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(v ?? '')}</t></is></c>`;
+    }).join('');
+    return `<row r="${r + 1}">${cells}</row>`;
+  }).join('');
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${body}</sheetData></worksheet>`;
+}
+
+function colName(i) {
+  let s = '';
+  for (i += 1; i > 0; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + (i - 1) % 26) + s;
+  return s;
+}
+
+function buildXlsx(sheets) {
+  const names = Object.keys(sheets);
+  const entries = [
+    { name: '[Content_Types].xml', text:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${
+        names.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>` },
+    { name: '_rels/.rels', text:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+    { name: 'xl/workbook.xml', text:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${
+        names.map((n, i) => `<sheet name="${xmlEsc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets></workbook>` },
+    { name: 'xl/_rels/workbook.xml.rels', text:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${
+        names.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}</Relationships>` },
+    ...names.map((n, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, text: sheetXml(sheets[n]) }))
+  ];
+  return zipFile(entries);
+}
+
+function downloadXlsx() {
+  const blob = buildXlsx({
+    '출석표': attendanceTable(), '주별 요약': weeklyTable(), '소그룹': groupTable()
+  });
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'),
+    { href: url, download: `청년부 출석부 ${toKey(new Date())}.xlsx` });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function download(filename, text, type) {
   const url = URL.createObjectURL(new Blob([text], { type }));
   const a = Object.assign(document.createElement('a'), { href: url, download: filename });
@@ -1405,60 +1576,6 @@ function importDialog() {
     };
     $('#i-ok', sh).onclick = () => apply($('#i-json', sh).value);
   });
-}
-
-function syncDialog() {
-  const cfg = readConfig();
-  openSheet(`<h2>여러 명이 공유하기</h2>
-    <p class="sub">Firebase 웹앱 설정(firebaseConfig)을 붙여넣고 방 코드를 정하면,
-    같은 코드를 넣은 모든 기기에서 실시간으로 같은 출석부를 보게 됩니다.
-    설정 방법은 README.md 를 참고하세요.</p>
-    <label class="field">방 코드 (팀끼리 공유할 비밀 코드)
-      <input type="text" id="y-room" placeholder="bokwang-youth-x7k2m9"
-        value="${esc(cfg?.roomId ?? 'bokwang-youth-' + Math.random().toString(36).slice(2, 8))}"></label>
-    <label class="field">firebaseConfig (JSON 또는 붙여넣은 코드 그대로)
-      <textarea class="code" id="y-cfg" placeholder='{ "apiKey": "…", "projectId": "…", "appId": "…" }'>${esc(cfg ? JSON.stringify(cfg.firebase, null, 2) : '')}</textarea></label>
-    <div class="actions">
-      <button class="btn" data-close>취소</button>
-      <button class="btn primary" id="y-ok">저장하고 새로고침</button>
-    </div>
-    ${cfg ? '<button class="btn danger block" id="y-off" style="margin-top:8px">공유 끄고 로컬 모드로</button>' : ''}`,
-  (sh, close) => {
-    $('#y-ok', sh).onclick = () => {
-      const room = $('#y-room', sh).value.trim();
-      const raw  = $('#y-cfg', sh).value.trim();
-      if (!room) { toast('방 코드를 입력해 주세요'); return; }
-      let firebase;
-      try { firebase = parseFirebaseConfig(raw); }
-      catch (e) { toast(e.message); return; }
-      localStorage.setItem(LS_CONFIG, JSON.stringify({ roomId: room, firebase }));
-      close(); location.reload();
-    };
-    $('#y-off', sh)?.addEventListener('click', () => {
-      localStorage.removeItem(LS_CONFIG); location.reload();
-    });
-  });
-}
-
-/** Firebase 콘솔에서 복사한 코드 조각도, 순수 JSON도 모두 받아준다. */
-function parseFirebaseConfig(raw) {
-  if (!raw) throw new Error('firebaseConfig를 붙여넣어 주세요');
-  let text = raw;
-  const m = raw.match(/\{[\s\S]*\}/);
-  if (m) text = m[0];
-  let obj;
-  try { obj = JSON.parse(text); }
-  catch {
-    // { apiKey: "…" } 처럼 따옴표 없는 키 → JSON 으로 보정
-    const fixed = text
-      .replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g, '$1"$2":')
-      .replace(/'/g, '"')
-      .replace(/,(\s*[}\]])/g, '$1');
-    try { obj = JSON.parse(fixed); } catch { throw new Error('설정을 읽지 못했어요. 중괄호 부분만 붙여넣어 보세요.'); }
-  }
-  for (const k of ['apiKey', 'projectId', 'appId'])
-    if (!obj[k]) throw new Error(`firebaseConfig에 ${k} 가 없어요`);
-  return obj;
 }
 
 /* ── 이벤트 배선 ──────────────────────────────────────────── */
@@ -1495,6 +1612,9 @@ $$('.sort-opt').forEach(b => b.addEventListener('click', () => {
   renderAttendance();
 }));
 $('#btn-settings').addEventListener('click', settingsDialog);
+$('#login-go').addEventListener('click', doLogin);
+$('#login-pw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+$('#login-email').addEventListener('keydown', e => { if (e.key === 'Enter') $('#login-pw').focus(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#overlay').hidden = true; });
 
 boot();

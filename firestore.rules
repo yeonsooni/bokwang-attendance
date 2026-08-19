@@ -2,24 +2,24 @@ rules_version = '2';
 
 // 보광중앙교회 청년부 출석부 — Firestore 보안 규칙
 //
-// 정책: 익명 로그인(Anonymous Auth)을 통과한 사용자만 rooms/ 아래를 읽고 쓸 수 있음.
-//       방 코드(roomId)를 아는 사람만 해당 방에 접근하게 되는 구조라,
-//       "링크 + 방 코드를 아는 우리 팀"까지가 사실상의 접근 범위입니다.
-//
-// 더 엄격하게 하려면: Firebase 콘솔에서 이메일/비밀번호 로그인을 켜고
-//       allow read, write: if request.auth != null && request.auth.token.email_verified == true;
-//       처럼 바꾼 뒤, 리더 계정만 만들어 나눠 주세요.
+// 정책: 로그인한 계정만 읽고 쓸 수 있다.
+//       계정은 Firebase 콘솔에서 관리자가 직접 만들며(리더 4~5명),
+//       앱에는 가입 기능이 없다. 익명 로그인도 쓰지 않는다.
+//       따라서 주소를 알아도 계정이 없으면 명단·출석 기록을 볼 수 없다.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /rooms/{roomId}/{document=**} {
-      allow read, write: if request.auth != null;
-    }
+    match /members/{id}     { allow read, write: if signedIn(); }
+    match /groups/{id}      { allow read, write: if signedIn(); }
+    match /attendance/{id}  { allow read, write: if signedIn(); }
+    match /notes/{id}       { allow read, write: if signedIn(); }
 
     // 그 밖의 모든 경로는 차단
-    match /{document=**} {
-      allow read, write: if false;
+    match /{document=**} { allow read, write: if false; }
+
+    function signedIn() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
     }
   }
 }

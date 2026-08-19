@@ -103,6 +103,24 @@
     </button>
   </nav>
 
+  <!-- 로그인 — 계정이 없으면 아무것도 안 보인다 -->
+  <div id="login" class="login" hidden>
+    <div class="login-card">
+      <p class="eyebrow">보광중앙교회</p>
+      <h2>청년부 출석부</h2>
+      <p class="login-sub">리더 계정으로 들어와 주세요.</p>
+      <label class="field">이메일
+        <input type="email" id="login-email" autocomplete="username" inputmode="email" placeholder="leader@example.com" />
+      </label>
+      <label class="field">비밀번호
+        <input type="password" id="login-pw" autocomplete="current-password" placeholder="••••••••" />
+      </label>
+      <p class="login-msg" id="login-msg" hidden></p>
+      <button class="btn primary block" id="login-go">들어가기</button>
+      <p class="login-foot">계정은 담당자가 만들어 드립니다.</p>
+    </div>
+  </div>
+
   <!-- 공용 모달 -->
   <div id="overlay" class="overlay" hidden>
     <div id="sheet" class="sheet" role="dialog" aria-modal="true"></div>
