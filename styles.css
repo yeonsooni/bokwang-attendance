@@ -43,8 +43,8 @@
   --shadow-dock: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.12);
 
   /* ── 여백 ───────────────────────────────────────────── */
-  --pad-card: 20px;
-  --gutter:   16px;
+  --pad-card: 22px;
+  --gutter:   20px;
 
   --spring: cubic-bezier(.34, 1.4, .64, 1);
   --font: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo",
@@ -134,7 +134,7 @@ main {
   overflow-y: auto; overflow-x: clip; overscroll-behavior: contain;
   /* 실제 스크롤 컨테이너는 body 가 아니라 여기 — 가로 패닝을 직접 막는다 */
   touch-action: pan-y pinch-zoom;
-  padding: 4px var(--gutter) 120px;   /* 하단 독에 가리지 않도록 */
+  padding: 8px var(--gutter) 132px;   /* 하단 독에 가리지 않도록 */
 }
 .panel { display: none; }
 .panel.is-active { display: block; }
@@ -157,7 +157,7 @@ main {
 .app-header {
   flex: none;
   display: flex; align-items: flex-end; gap: 12px;
-  padding: calc(env(safe-area-inset-top) + 22px) var(--gutter) 14px;
+  padding: calc(env(safe-area-inset-top) + 26px) var(--gutter) 20px;
 }
 .brand { flex: 1; min-width: 0; }
 .eyebrow {
@@ -184,7 +184,7 @@ main {
 .card {
   background: var(--surface); border: 1px solid var(--hairline);
   border-radius: var(--r-card); padding: var(--pad-card);
-  margin-bottom: 12px; box-shadow: var(--shadow-card);
+  margin-bottom: 14px; box-shadow: var(--shadow-card);
 }
 .card > h2 { margin: 0 0 3px; font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
 .card > h2 .badge {
@@ -232,7 +232,7 @@ main {
 }
 
 /* ── 툴바 ─────────────────────────────────────────────────── */
-.toolbar { display: flex; align-items: center; gap: 9px; margin: 22px 4px 12px; }
+.toolbar { display: flex; align-items: center; gap: 9px; margin: 28px 2px 16px; }
 .toolbar h2 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: -.1px; }
 /* 명단 정렬 기준 — 명단 제목 오른쪽에 붙는다 */
 .sortbar {
@@ -262,7 +262,7 @@ main {
 
 /* ── 이름 격자 ────────────────────────────────────────────── */
 /* 폰에서는 가로 4개 고정 — 넓은 화면에서만 열이 늘어난다 */
-.grid { display: grid; gap: 7px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (min-width: 560px) {
   .grid { gap: 8px; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
 }
@@ -281,7 +281,7 @@ main {
   background: var(--surface); border: 1px solid var(--hairline);
   color: var(--text-primary);
   /* 가로가 좁아졌으므로 좌우 여백만 줄이고 세로 높이는 그대로 유지한다 */
-  border-radius: var(--r-card); padding: 18px 4px;
+  border-radius: var(--r-card); padding: 18px 6px;
   font-size: 14.5px; font-weight: 600; text-align: center; letter-spacing: -.3px;
   min-height: 68px; display: flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow-sm);
@@ -352,7 +352,7 @@ main {
    체크는 이미 자동 저장되지만, 확인하고 싶을 때 누를 수 있게 둔다 */
 .savebar {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; margin-top: 20px; padding: 14px;
+  width: 100%; margin-top: 26px; padding: 15px;
   border: 1px solid var(--hairline); border-radius: var(--r-card);
   background: var(--surface); color: var(--accent);
   font-size: 13.5px; font-weight: 700;
@@ -404,7 +404,7 @@ main {
 .icon-mini:active { transform: scale(.88); background: var(--surface); }
 .icon-mini.danger { color: var(--danger); }
 
-.hint { font-size: 11.5px; font-weight: 400; color: var(--text-muted); text-align: center; margin: 26px 0 0; }
+.hint { font-size: 11.5px; font-weight: 400; color: var(--text-muted); text-align: center; margin: 22px 0 4px; }
 .hint b { color: var(--text-secondary); font-weight: 600; }
 
 .empty {
@@ -438,7 +438,7 @@ main {
 /* ── 하단 플로팅 독 ───────────────────────────────────────── */
 .dock {
   position: absolute; left: 50%; transform: translateX(-50%);
-  bottom: calc(env(safe-area-inset-bottom) + 18px);
+  bottom: calc(env(safe-area-inset-bottom) + 22px);
   display: flex; align-items: center; gap: 4px;
   padding: 6px; border-radius: var(--r-pill);
   background: var(--surface); border: 1px solid var(--hairline);

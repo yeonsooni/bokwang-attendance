@@ -326,7 +326,7 @@ const onState = next => { S = next; lastSavedAt = Date.now(); render(); queueShe
 
 async function startCloud(user) {
   $('#login').hidden = true;
-  setSync('cloud', user.email ?? '로그인됨');
+  setSync('cloud', (user.email ?? '').replace(ID_DOMAIN, '') || '로그인됨');
   backend = FirebaseBackend(authRef);
   try {
     await backend.start(onState);
