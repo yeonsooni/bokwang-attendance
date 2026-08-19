@@ -1262,22 +1262,18 @@ function notesDialog() {
    기기마다 따로 기억한다 (공유 데이터가 아니라 각자의 취향) */
 const LS_THEME = 'bokwang.theme.v1';
 const THEMES = [
-  { k: 'blue',   n: '기본 블루',        g: '진하게' },
-  { k: 'sage',   n: '따뜻한 종이·세이지', g: '진하게' },
-  { k: 'mono',   n: '먹색 모노톤',      g: '진하게' },
-  { k: 'mist',   n: '안개 블루',        g: '진하게' },
-  { k: 'clay',   n: '흙빛 테라코타',     g: '진하게' },
-  { k: 'forest', n: '깊은 숲색',        g: '진하게' },
-  { k: 'lav',    n: '차분한 라벤더',     g: '진하게' },
-  { k: 'navy',   n: '네이비·크림',      g: '진하게' },
-  { k: 'sblue',  n: '옅은 블루',        g: '옅게' },
-  { k: 'ssage',  n: '옅은 세이지',       g: '옅게' },
-  { k: 'smono',  n: '옅은 먹색',        g: '옅게' },
-  { k: 'sclay',  n: '옅은 테라코타',     g: '옅게' }
+  { k: 'blue',  n: '기본 블루',    g: '진하게' },
+  { k: 'sblue', n: '옅은 블루',    g: '옅게' },
+  { k: 'ssage', n: '옅은 세이지',   g: '옅게' },
+  { k: 'smono', n: '옅은 먹색',    g: '옅게' },
+  { k: 'sclay', n: '옅은 테라코타', g: '옅게' }
 ];
 
 function applyTheme(k) {
-  document.documentElement.dataset.themeName = k || 'blue';
+  // 없어진 테마가 저장돼 있을 수 있으므로 목록에 있는지 확인한다
+  const ok = THEMES.some(t => t.k === k) ? k : 'blue';
+  document.documentElement.dataset.themeName = ok;
+  if (ok !== k) localStorage.setItem(LS_THEME, ok);
 }
 applyTheme(localStorage.getItem(LS_THEME));
 

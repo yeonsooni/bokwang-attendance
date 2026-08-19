@@ -16,13 +16,6 @@ W, DARK_PLANE, DARK_SURF = '#ffffff', '#12141a', '#1b1e26'
 # key, 이름, 방식, plane, surface, hairline, ink, muted, primary, fill, accent
 T = [
  ('blue',  '기본 블루',        'solid', '#f8fafc','#ffffff','#e2e8f0','#0f172a','#94a3b8','#41609c','#41609c','#10b981'),
- ('sage',  '따뜻한 종이+세이지','solid', '#f6f4ef','#fffdf9','#e6e1d6','#2b2823','#918a7c','#6b7f6a','#6b7f6a','#8a9a5b'),
- ('mono',  '먹색 모노톤',      'solid', '#f4f4f2','#ffffff','#e3e3df','#1c1c1a','#8c8c86','#3f3f3c','#3f3f3c','#6b7a5e'),
- ('mist',  '안개 블루',        'solid', '#f2f5f7','#ffffff','#dfe6ea','#22303a','#8ba0ad','#5b7f95','#5b7f95','#4f9d8a'),
- ('clay',  '흙빛 테라코타',     'solid', '#f7f3f0','#fffcfa','#e8ded7','#2e2724','#9c8b81','#a8674f','#a8674f','#7d8b6a'),
- ('forest','깊은 숲색',        'solid', '#f4f6f3','#ffffff','#dfe5dc','#1f2a22','#8a9689','#3f6b4d','#3f6b4d','#a8763f'),
- ('lav',   '차분한 라벤더',     'solid', '#f6f5f9','#ffffff','#e5e2ed','#272334','#948fa6','#6f6596','#6f6596','#5f8f86'),
- ('navy',  '네이비+크림',      'solid', '#f7f4ec','#fffdf7','#e5dfd0','#242a33','#94907f','#2f3d54','#2f3d54','#9a7b3f'),
  ('sblue', '옅은 블루',        'soft',  '#f7f8fa','#ffffff','#e4e7ec','#1b2430','#98a2b0','#41609c','#dfe7f4','#3f8f72'),
  ('ssage', '옅은 세이지',       'soft',  '#f6f4ef','#fffdf9','#e6e1d6','#2b2823','#918a7c','#6b7f6a','#e0e8dd','#8a9a5b'),
  ('smono', '옅은 먹색',        'soft',  '#f4f4f2','#ffffff','#e3e3df','#1c1c1a','#8c8c86','#3f3f3c','#e4e4e0','#6b7a5e'),
