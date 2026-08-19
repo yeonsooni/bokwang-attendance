@@ -387,6 +387,7 @@ function render() {
   if (activeTab === 'attendance') renderAttendance();
   if (activeTab === 'stats')      renderStats();
   if (activeTab === 'groups')     renderGroups();
+  if (activeTab === 'settings')   renderSettings();
 }
 
 /* 출석 탭 ------------------------------------------------- */
@@ -1277,30 +1278,6 @@ function applyTheme(k) {
 }
 applyTheme(localStorage.getItem(LS_THEME));
 
-function themeDialog() {
-  const cur = localStorage.getItem(LS_THEME) || 'blue';
-  const row = t => `<button class="theme-opt${t.k === cur ? ' is-on' : ''}" data-theme="${t.k}">
-      <span class="sw" data-sw="${t.k}"><i></i><i class="on"></i><i></i></span>
-      <span class="nm">${esc(t.n)}</span>
-      ${t.k === cur ? '<span class="tick">✓</span>' : ''}
-    </button>`;
-  openSheet(`<h2>화면 색</h2>
-    <p class="sub">이 기기에서만 바뀝니다. 다른 리더 화면은 그대로예요.</p>
-    <p class="group-label">진하게 채우기 — 또렷합니다</p>
-    <div class="theme-list">${THEMES.filter(t => t.g === '진하게').map(row).join('')}</div>
-    <p class="group-label">옅게 채우기 — 눈이 편합니다</p>
-    <div class="theme-list">${THEMES.filter(t => t.g === '옅게').map(row).join('')}</div>
-    <button class="btn block" data-close style="margin-top:16px">닫기</button>`,
-  (sh, close) => {
-    $$('[data-theme]', sh).forEach(b => b.onclick = () => {
-      const k = b.dataset.theme;
-      localStorage.setItem(LS_THEME, k);
-      applyTheme(k);
-      close();
-      toast(`${THEMES.find(t => t.k === k).n} 으로 바꿨어요`);
-    });
-  });
-}
 
 /** 각자 비밀번호를 바꿀 수 있게 — 잊었을 때는 담당자가 콘솔에서 바꿔줘야 한다 */
 function passwordDialog() {
@@ -1441,54 +1418,84 @@ async function verifySave() {
 }
 
 /* ── 설정 ─────────────────────────────────────────────────── */
-function settingsDialog() {
+/* ── 설정 화면 ─────────────────────────────────────────────
+   팝업이 아니라 독립 페이지. 톱니 아이콘으로 들어오고, 같은 자리의
+   ✕ 나 아래 탭을 누르면 나간다. */
+function renderSettings() {
   const email = authRef?.currentUser?.email;
   const who = email ? email.replace(ID_DOMAIN, '') : null;
+  const curTheme = localStorage.getItem(LS_THEME) || 'blue';
+  const themeName = THEMES.find(t => t.k === curTheme)?.n ?? '기본 블루';
+  const sheetOn = !!readSheetCfg();
 
-  // 하는 일끼리 묶는다 — 평평한 목록이면 급할 때 찾기 어렵다
-  openSheet(`<h2>설정</h2>
-    <p class="sub">${who ? `<b>${esc(who)}</b> 로 로그인됨 · 리더들과 실시간 공유 중`
-                         : '지금은 이 기기에만 저장됩니다.'}</p>
+  const row = (id, title, desc, mod = '') => `<button class="srow ${mod}" id="${id}">
+      <span class="srow-txt"><b>${title}</b>${desc ? `<small>${desc}</small>` : ''}</span>
+      <span class="srow-go" aria-hidden="true">›</span>
+    </button>`;
 
-    ${who ? `<p class="group-label">계정</p>
-    <div class="menu">
-      <button class="btn" id="s-pw">비밀번호 변경</button>
-      <button class="btn" id="s-logout">로그아웃</button>
-    </div>` : ''}
-
-    <p class="group-label">파일</p>
-    <div class="menu">
-      <button class="btn primary" id="s-csv">엑셀 파일로 내려받기</button>
-      <button class="btn" id="s-sheet">구글 시트로 자동 저장</button>
-      <button class="btn" id="s-export">전체 백업 받기 (JSON)</button>
-      <button class="btn" id="s-import">백업 불러오기</button>
+  $('#settings-body').innerHTML = `
+  ${who ? `<p class="sect">계정</p>
+  <div class="card slist">
+    <div class="srow static">
+      <span class="srow-txt"><b>${esc(who)}</b><small>리더 계정으로 로그인됨</small></span>
+      <span class="dot-ok" aria-hidden="true"></span>
     </div>
-
-    <p class="group-label">앱 설정</p>
-    <div class="menu">
-      <button class="btn" id="s-theme">화면 색</button>
+    ${row('s-pw', '비밀번호 변경', '내 비밀번호를 직접 바꿉니다')}
+    ${row('s-logout', '로그아웃', '이 기기에서 계정을 뺍니다')}
+  </div>` : `<p class="sect">계정</p>
+  <div class="card slist">
+    <div class="srow static">
+      <span class="srow-txt"><b>로그인 안 됨</b><small>지금은 이 기기에만 저장됩니다</small></span>
     </div>
+  </div>`}
 
-    <p class="group-label danger-label">되돌릴 수 없음</p>
-    <div class="menu">
-      <button class="btn danger" id="s-reset">전체 초기화</button>
-    </div>
+  <p class="sect">파일</p>
+  <div class="card slist">
+    ${row('s-csv', '엑셀 파일로 내려받기', '출석표 · 주별 요약 · 소그룹 세 장')}
+    ${row('s-sheet', '구글 시트로 자동 저장', sheetOn ? '연결됨 · 체크할 때마다 갱신' : '연결 안 됨')}
+    ${row('s-export', '전체 백업 받기', 'JSON 파일 하나로 통째로')}
+    ${row('s-import', '백업 불러오기', '받아둔 파일에서 되돌립니다')}
+  </div>
 
-    <button class="btn block" data-close style="margin-top:18px">닫기</button>`,
-  (sh, close) => {
-    $('#s-theme', sh).onclick  = () => { close(); themeDialog(); };
-    $('#s-sheet', sh).onclick  = () => { close(); sheetDialog(); };
-    $('#s-export', sh).onclick = () => { close(); download(`출석부-백업-${toKey(new Date())}.json`,
-      JSON.stringify(S, null, 2), 'application/json'); };
-    $('#s-csv', sh).onclick    = () => { close(); downloadXlsx(); toast('엑셀 파일을 내려받았어요'); };
-    $('#s-import', sh).onclick = () => { close(); importDialog(); };
-    $('#s-pw', sh)?.addEventListener('click', () => { close(); passwordDialog(); });
-    $('#s-logout', sh)?.addEventListener('click', () => { close(); doLogout(); });
-    $('#s-reset', sh).onclick  = () => { close(); confirmDialog('전체 초기화',
-      '명단·소그룹·출석 기록이 모두 지워집니다. 먼저 백업을 받아두세요.', '전부 지우기',
-      async () => { await backend.replaceAll(emptyState()); toast('초기화했어요'); }); };
+  <p class="sect">화면 색 <span class="sect-now">${esc(themeName)}</span></p>
+  <div class="card">
+    <p class="sect-sub">이 기기에서만 바뀝니다. 리더마다 다르게 써도 됩니다.</p>
+    <p class="group-label">진하게 채우기 — 또렷합니다</p>
+    <div class="theme-list">${THEMES.filter(t => t.g === '진하게').map(t => themeRow(t, curTheme)).join('')}</div>
+    <p class="group-label">옅게 채우기 — 눈이 편합니다</p>
+    <div class="theme-list">${THEMES.filter(t => t.g === '옅게').map(t => themeRow(t, curTheme)).join('')}</div>
+  </div>
+
+  <p class="sect danger-label">되돌릴 수 없음</p>
+  <div class="card slist">
+    ${row('s-reset', '전체 초기화', '명단 · 출석 기록이 모두 지워집니다', 'danger')}
+  </div>`;
+
+  const $$s = sel => $$(sel, $('#settings-body'));
+  $('#s-csv').onclick    = () => { downloadXlsx(); toast('엑셀 파일을 내려받았어요'); };
+  $('#s-sheet').onclick  = () => sheetDialog();
+  $('#s-export').onclick = () => download(`출석부-백업-${toKey(new Date())}.json`,
+    JSON.stringify(S, null, 2), 'application/json');
+  $('#s-import').onclick = () => importDialog();
+  $('#s-pw')?.addEventListener('click', passwordDialog);
+  $('#s-logout')?.addEventListener('click', doLogout);
+  $('#s-reset').onclick  = () => confirmDialog('전체 초기화',
+    '명단·소그룹·출석 기록이 모두 지워집니다. 먼저 백업을 받아두세요.', '전부 지우기',
+    async () => { await backend.replaceAll(emptyState()); toast('초기화했어요'); });
+  $$s('[data-theme]').forEach(b => b.onclick = () => {
+    const k = b.dataset.theme;
+    localStorage.setItem(LS_THEME, k);
+    applyTheme(k);
+    renderSettings();
+    toast(`${THEMES.find(t => t.k === k).n} 으로 바꿨어요`);
   });
 }
+
+const themeRow = (t, cur) => `<button class="theme-opt${t.k === cur ? ' is-on' : ''}" data-theme="${t.k}">
+    <span class="sw" data-sw="${t.k}"><i></i><i class="on"></i><i></i></span>
+    <span class="nm">${esc(t.n)}</span>
+    ${t.k === cur ? '<span class="tick">✓</span>' : ''}
+  </button>`;
 
 /* ── 표 만들기 (CSV·구글 시트 공용) ───────────────────────── */
 /** 이름 × 날짜 출석표 */
@@ -1687,17 +1694,19 @@ function importDialog() {
 }
 
 /* ── 이벤트 배선 ──────────────────────────────────────────── */
-$$('.dock-tab').forEach(t => t.addEventListener('click', () => {
-  activeTab = t.dataset.tab;
+function goTab(name) {
+  activeTab = name;
   $$('.dock-tab').forEach(x => {
-    const on = x === t;
+    const on = x.dataset.tab === name;
     x.classList.toggle('is-active', on);
     x.setAttribute('aria-selected', on);
   });
-  $$('.panel').forEach(p => p.classList.toggle('is-active', p.id === 'panel-' + activeTab));
+  $$('.panel').forEach(p => p.classList.toggle('is-active', p.id === 'panel-' + name));
+  document.body.classList.toggle('in-settings', name === 'settings');
   $('main').scrollTop = 0;
   render();
-}));
+}
+$$('.dock-tab').forEach(t => t.addEventListener('click', () => goTab(t.dataset.tab)));
 $('#btn-notes').addEventListener('click', notesDialog);
 $('#btn-save').addEventListener('click', verifySave);
 
@@ -1719,7 +1728,10 @@ $$('.sort-opt').forEach(b => b.addEventListener('click', () => {
   lastSig = null;
   renderAttendance();
 }));
-$('#btn-settings').addEventListener('click', settingsDialog);
+$('#btn-settings').addEventListener('click', () => {
+  // 설정에 있을 때 같은 버튼이 '닫기' 가 된다
+  goTab(activeTab === 'settings' ? 'attendance' : 'settings');
+});
 $('#login-go').addEventListener('click', doLogin);
 $('#login-pw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 $('#login-email').addEventListener('keydown', e => { if (e.key === 'Enter') $('#login-pw').focus(); });

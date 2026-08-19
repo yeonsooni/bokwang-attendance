@@ -124,7 +124,7 @@ button { font-family: inherit; cursor: pointer; }
 
 /* 아이콘 SVG 에만 적용한다 — fill/stroke 는 상속되는 속성이라
    범위를 좁히지 않으면 통계 차트의 글자·막대까지 외곽선이 그려진다 */
-.icon-btn > svg, .dock-tab > svg {
+.icon-btn > svg, .dock-tab > svg, .icon-btn .ico-close {
   width: 20px; height: 20px; fill: none; stroke: currentColor;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
@@ -761,3 +761,38 @@ main {
 .sheet .group-label { margin: 20px 0 8px; }
 .sheet .group-label:first-of-type { margin-top: 4px; }
 .group-label.danger-label { color: var(--danger); }
+
+/* ── 설정 화면 (독립 페이지) ───────────────────────────────── */
+.sect {
+  display: flex; align-items: baseline; gap: 8px;
+  margin: 26px 4px 10px; font-size: 12px; font-weight: 700;
+  color: var(--text-secondary); letter-spacing: .2px;
+}
+#settings-body > .sect:first-child { margin-top: 6px; }
+.sect-now { margin-left: auto; font-weight: 500; color: var(--text-muted); }
+.sect.danger-label { color: var(--danger); }
+.sect-sub { margin: -4px 0 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+/* 항목 목록 카드 — 줄끼리는 얇은 선으로만 나눈다 */
+.card.slist { padding: 4px 16px; }
+.srow {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 15px 0; border: 0; border-bottom: 1px solid var(--hairline);
+  background: transparent; color: var(--text-primary); text-align: left;
+  transition: opacity .15s ease;
+}
+.card.slist .srow:last-child { border-bottom: 0; }
+.srow:not(.static):active { opacity: .55; }
+.srow.static { cursor: default; }
+.srow-txt { flex: 1; min-width: 0; display: block; }
+.srow-txt b { display: block; font-size: 14.5px; font-weight: 600; letter-spacing: -.2px; }
+.srow-txt small { display: block; margin-top: 3px; font-size: 12px; font-weight: 400; color: var(--text-muted); line-height: 1.5; }
+.srow-go { flex: none; font-size: 19px; color: var(--text-muted); line-height: 1; }
+.srow.danger .srow-txt b { color: var(--danger); }
+.dot-ok { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+
+/* 설정에 있는 동안 톱니가 닫기(✕) 로 바뀐다 */
+#btn-settings .ico-close { display: none; }
+body.in-settings #btn-settings .ico-gear  { display: none; }
+body.in-settings #btn-settings .ico-close { display: block; }
+body.in-settings #btn-settings { background: var(--surface-2); }
