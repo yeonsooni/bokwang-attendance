@@ -1,0 +1,5 @@
+# 개인정보 — 절대 공개 저장소에 올리지 않는다
+import/
+dist/
+.DS_Store
+.claude/
