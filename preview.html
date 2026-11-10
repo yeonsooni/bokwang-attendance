@@ -6,88 +6,57 @@
 <title>색감 후보 비교 — 청년부 출석부</title>
 <style>
 /* 색감 비교용 페이지. 실제 명단이 아니라 샘플 이름을 씁니다.
-   앱(styles.css)과 같은 모양 — 종이 바탕 · 가는 선 · 거의 각진 칸 · 그림자 없음 */
+   앱(styles.css)과 같은 모양 — 연회색 바탕 · 흰 카드 · 굵은 숫자 */
 * { box-sizing: border-box; }
 body {
   margin: 0; padding: 0 0 70px;
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
-  background: #ebe7df; color: #1f1d1a; -webkit-font-smoothing: antialiased;
+  background: #e6e8ea; color: #1a1b1e; -webkit-font-smoothing: antialiased; letter-spacing: -.2px;
 }
 .wrap { max-width: 520px; margin: 0 auto; }
-.intro {
-  padding: calc(env(safe-area-inset-top) + 24px) 20px 18px;
-  background: #f6f3ec; border-bottom: 1px solid #c4beb3;
-}
-.intro h1 { margin: 0 0 10px; padding-bottom: 10px; border-bottom: 3px double #1f1d1a; font-size: 21px; letter-spacing: -.4px; }
-.intro p  { margin: 0 0 8px; font-size: 13.5px; line-height: 1.7; color: #5a564e; }
+.intro { padding: calc(env(safe-area-inset-top) + 26px) 20px 20px; background: #fff; }
+.intro h1 { margin: 0 0 10px; font-size: 22px; letter-spacing: -.6px; }
+.intro p  { margin: 0 0 8px; font-size: 14px; line-height: 1.65; color: #585b60; }
 .intro p:last-child { margin: 0; }
-
-.chapter {
-  margin: 0; padding: 28px 20px 4px;
-  font-size: 13px; font-weight: 700; color: #1f1d1a;
-}
-.chapter small { display: block; margin-top: 5px; font-size: 12.5px; font-weight: 400; color: #6f6a60; line-height: 1.65; }
-
+.chapter { margin: 0; padding: 28px 20px 4px; font-size: 14px; font-weight: 700; }
+.chapter small { display: block; margin-top: 5px; font-size: 13px; font-weight: 400; color: #6b6f75; line-height: 1.65; }
 .opt { padding: 16px 14px 22px; }
-.opt > h2 {
-  margin: 0 0 3px; font-size: 15px; font-weight: 700; letter-spacing: -.3px;
-  display: flex; align-items: baseline; gap: 8px;
-}
-.opt > h2 .num { font-variant-numeric: tabular-nums; color: #8a8478; font-weight: 600; }
-.opt > .why { margin: 0 0 12px; font-size: 12.5px; color: #6f6a60; line-height: 1.6; }
+.opt > h2 { margin: 0 0 3px; font-size: 16px; font-weight: 700; letter-spacing: -.4px; display: flex; align-items: baseline; gap: 8px; }
+.opt > h2 .num { color: #8b9096; font-weight: 600; }
+.opt > .why { margin: 0 0 12px; font-size: 13px; color: #6b6f75; line-height: 1.6; }
 
 /* ── 미니 앱 화면 ─────────────────────────────────────── */
-.demo {
-  border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
-  padding: 14px 16px 0; background: var(--plane); color: var(--ink);
-}
-.demo .top {
-  display: flex; align-items: baseline; gap: 8px;
-  padding-bottom: 9px; border-bottom: 3px double var(--ink);
-}
-.demo .title { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.5px; }
-.demo .church { flex: 1; font-size: 10.5px; color: var(--muted); }
-.demo .date { text-align: center; font-size: 19px; font-weight: 700; letter-spacing: -.4px; margin: 12px 0 10px; }
-.demo .date small { display: block; font-size: 10.5px; font-weight: 500; color: var(--muted); margin-top: 2px; letter-spacing: 0; }
-.demo .stat { display: flex; align-items: baseline; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--hair); font-variant-numeric: tabular-nums; }
-.demo .stat b { font-size: 26px; letter-spacing: -.8px; }
+.demo { border-radius: 22px; overflow: hidden; padding: 16px 12px 0; background: var(--plane); color: var(--ink); }
+.demo .top { padding: 0 6px 12px; }
+.demo .church { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.demo .title { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.6px; }
+.demo .card { background: var(--surface); border-radius: 14px; padding: 12px 14px 14px; }
+.demo .date { text-align: center; font-size: 14px; font-weight: 700; padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--hair); }
+.demo .date small { display: block; font-size: 10.5px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+.demo .stat { display: flex; align-items: baseline; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.demo .stat b { font-size: 24px; letter-spacing: -.8px; }
 .demo .stat span { font-size: 11.5px; color: var(--muted); }
-.demo .stat .rate { font-size: 12px; font-weight: 700; color: var(--primary); }
-.demo .meter { margin-top: 9px; height: 3px; background: var(--track); }
-.demo .meter i { display: block; height: 100%; width: 59%; background: var(--primary); }
-.demo .label {
-  display: flex; align-items: flex-end; justify-content: space-between;
-  font-size: 13px; font-weight: 700; margin: 16px 0 10px; border-bottom: 1px solid var(--hair);
-}
-.demo .label > span:first-child { padding-bottom: 6px; }
-.demo .label .tabs { display: flex; gap: 10px; font-size: 10.5px; font-weight: 500; color: var(--muted); }
-.demo .label .tabs span { padding-bottom: 6px; margin-bottom: -1px; }
-.demo .label .tabs .sel { color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--primary); }
-.demo .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
-.demo .n {
-  position: relative;
-  min-height: 46px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
-  font-size: 12.5px; font-weight: 600; letter-spacing: -.4px;
-  background: var(--surface); border: 1px solid var(--line); color: var(--ink);
-}
-.demo .n.on { background: var(--fill); border: 2px solid var(--edge); color: var(--on-ink); font-weight: 700; }
-.demo .n.on::after {
-  content: ""; position: absolute; top: 4px; right: 4px; width: 6px; height: 3px;
-  border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg);
-}
-.demo .dock {
-  margin: 14px -16px 0; display: grid; grid-template-columns: repeat(3, 1fr);
-  border-top: 1px solid var(--line);
-}
-.demo .dock span { padding: 9px 0; text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); }
-.demo .dock span.sel { color: var(--ink); font-weight: 700; box-shadow: inset 0 2px 0 var(--primary); }
+.demo .stat .rate { font-size: 12px; font-weight: 700; color: var(--data); }
+.demo .meter { margin-top: 10px; height: 6px; border-radius: 99px; background: var(--chip); overflow: hidden; }
+.demo .meter i { display: block; height: 100%; width: 59%; background: var(--data); border-radius: 99px; }
+.demo .label { display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 700; margin: 16px 4px 9px; }
+.demo .label .tabs { display: flex; gap: 2px; padding: 2px; border-radius: 8px; background: color-mix(in srgb, var(--ink) 8%, var(--plane)); font-size: 10px; font-weight: 600; color: var(--muted); }
+.demo .label .tabs span { padding: 4px 6px; border-radius: 6px; }
+.demo .label .tabs .sel { background: var(--surface); color: var(--ink); font-weight: 700; }
+.demo .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; background: var(--surface); border-radius: 14px; padding: 10px; }
+.demo .n { position: relative; min-height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; letter-spacing: -.4px; background: var(--chip); color: var(--ink); }
+.demo .n.on { background: var(--fill); box-shadow: inset 0 0 0 2px var(--edge); color: var(--on-ink); font-weight: 700; }
+.demo .n.on::after { content: ""; position: absolute; top: 5px; right: 5px; width: 6px; height: 3px;
+  border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); }
+.demo .dock { margin: 14px -12px 0; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); border-top: 1px solid var(--hair); }
+.demo .dock span { padding: 10px 0; text-align: center; font-size: 11px; font-weight: 500; color: var(--muted); }
+.demo .dock span.sel { color: var(--ink); font-weight: 700; }
 
 /* ═══ 테마 값 — styles.css 의 [data-theme-name] 과 같다 ═══ */
-.t-blue  { --plane:#f6f3ec; --surface:#fffdf8; --hair:#e3ddd0; --line:#c4beb3; --track:#ece9e3; --ink:#1f1d1a; --muted:#8a8478; --primary:#2c4a7c; --fill:#2c4a7c; --edge:#253e68; --on-ink:#fff; }
-.t-sblue { --plane:#f5f4f0; --surface:#fffefb; --hair:#e1ded6; --line:#c2c0bb; --track:#ebeae6; --ink:#1e2430; --muted:#8b909a; --primary:#2f4f86; --fill:#dbe4f3; --edge:#4e6998; --on-ink:#223960; }
-.t-ssage { --plane:#f3f1ea; --surface:#fcfbf6; --hair:#dfdbd0; --line:#c1beb4; --track:#e9e7e1; --ink:#262620; --muted:#8a877b; --primary:#4f6a4e; --fill:#dbe5d6; --edge:#698069; --on-ink:#394c38; }
-.t-smono { --plane:#f4f2ee; --surface:#fdfcf9; --hair:#e1ded7; --line:#c1bfb8; --track:#eae8e4; --ink:#1a1a18; --muted:#87857f; --primary:#2b2b29; --fill:#e2e0da; --edge:#4b4b49; --on-ink:#1f1f1e; }
-.t-sclay { --plane:#f6f1ea; --surface:#fffcf7; --hair:#e6dccf; --line:#c8bfb3; --track:#ece7e1; --ink:#2b2420; --muted:#978a7e; --primary:#9a5a41; --fill:#f0dccf; --edge:#a9735e; --on-ink:#6f412f; }
+.t-blue  { --plane:#f2f4f6; --surface:#ffffff; --chip:#f2f4f6; --hair:#e5e8eb; --line:#d1d6db; --ink:#191f28; --muted:#8b95a1; --primary:#1b64da; --data:#1b64da; --fill:#1b64da; --edge:#1957c2; --on-ink:#ffffff; }
+.t-ssage { --plane:#f2f4f6; --surface:#ffffff; --chip:#f2f4f6; --hair:#e5e8eb; --line:#d1d6db; --ink:#191f28; --muted:#8b95a1; --primary:#028450; --data:#028450; --fill:#028450; --edge:#027648; --on-ink:#ffffff; }
+.t-smono { --plane:#f2f4f6; --surface:#ffffff; --chip:#f2f4f6; --hair:#e5e8eb; --line:#d1d6db; --ink:#191f28; --muted:#8b95a1; --primary:#333d4b; --data:#333d4b; --fill:#333d4b; --edge:#191f28; --on-ink:#ffffff; }
 </style>
 </head>
 <body>
@@ -95,34 +64,21 @@ body {
 
 <div class="intro">
   <h1>화면 색 비교</h1>
-  <p>앱에 들어 있는 다섯 가지 화면 색입니다.</p>
-  <p> ⚙ 설정 → 화면 색 에서 언제든 바꿀 수 있고,
+  <p>앱에 들어 있는 세 가지 화면 색입니다. 색은 토스 디자인 시스템의 색 단계를 따랐고,
+  체크된 이름의 흰 글씨는 모두 읽기 쉬운 대비(WCAG AA, 4.5:1 이상)를 넘습니다.</p>
+  <p>⚙ 설정 → 화면 색 에서 언제든 바꿀 수 있고,
   기기마다 따로 기억되니 리더별로 다르게 써도 됩니다.</p>
   <p>이름은 실제 명단이 아니라 샘플입니다.</p>
 </div>
 
-<p class="chapter">진하게 채우는 방식
-  <small>체크된 칸을 색으로 꽉 채웁니다. 또렷하지만 체크가 많아지면 화면이 무거워집니다.</small></p>
-
 <section class="opt"><h2><span class="num">1</span>기본 블루</h2>
-  <p class="why">처음 설정된 색. 체크된 칸이 가장 또렷합니다.</p><div class="demo t-blue"></div></section>
+  <p class="why">처음 설정된 색. 토스 파랑 계열로, 가장 많은 사람이 편하게 느끼는 색입니다.</p><div class="demo t-blue"></div></section>
 
-<p class="chapter">옅게 채우는 방식
-  <small>체크된 칸을 <b>연한 색으로 칠하고 글씨를 진하게</b> 합니다.
-  화면이 훨씬 가벼워집니다. 대신 구분이 약해지지 않도록
-  <b>진한 테두리와 체크 표시</b>를 함께 넣었습니다.</small></p>
+<section class="opt"><h2><span class="num">2</span>차분한 초록</h2>
+  <p class="why">눈이 편한 깊은 초록. 잔잔하고 따뜻합니다.</p><div class="demo t-ssage"></div></section>
 
-<section class="opt"><h2><span class="num">2</span>옅은 블루</h2>
-  <p class="why">기본 블루를 옅게. 변화가 가장 적습니다.</p><div class="demo t-sblue"></div></section>
-
-<section class="opt"><h2><span class="num">3</span>옅은 세이지</h2>
-  <p class="why">초록빛이 도는 회색. 가장 잔잔합니다.</p><div class="demo t-ssage"></div></section>
-
-<section class="opt"><h2><span class="num">4</span>옅은 먹색</h2>
-  <p class="why">색이 거의 없이 먹색만. 담백합니다.</p><div class="demo t-smono"></div></section>
-
-<section class="opt"><h2><span class="num">5</span>옅은 테라코타</h2>
-  <p class="why">붉은 흙빛. 따뜻하면서 부담 없습니다.</p><div class="demo t-sclay"></div></section>
+<section class="opt"><h2><span class="num">3</span>먹색</h2>
+  <p class="why">색을 거의 쓰지 않은 짙은 회색. 담백하고 단정합니다.</p><div class="demo t-smono"></div></section>
 
 <script>
 const NAMES = ['김민준','이서윤','박도윤','최지우','정하준','강서아','조은우','윤아린','임시우','한예린','오지훈','신수아','권민서','황건우','안소율'];
@@ -130,15 +86,15 @@ const ON = new Set([0,1,3,4,6,7,8,10,11,13]);
 
 document.querySelectorAll('.demo').forEach(d => {
   d.innerHTML = `
-    <div class="top">
-      <p class="title">청년부 출석부</p><span class="church">보광중앙교회</span>
+    <div class="top"><span class="church">보광중앙교회</span><p class="title">청년부 출석부</p></div>
+    <div class="card">
+      <div class="date">8월 16일<small>2026년 · 주일</small></div>
+      <div class="stat">
+        <div><b>39</b> <span>/ 66명</span></div>
+        <div class="rate">출석률 59%</div>
+      </div>
+      <div class="meter"><i></i></div>
     </div>
-    <div class="date">8월 16일<small>2026년 · 주일</small></div>
-    <div class="stat">
-      <div><b>39</b> <span>/ 66명</span></div>
-      <div class="rate">출석률 59%</div>
-    </div>
-    <div class="meter"><i></i></div>
     <div class="label"><span>명단</span><span class="tabs"><span class="sel">가까이 앉는 대로</span><span>가나다 순</span><span>소그룹별</span></span></div>
     <div class="grid">${NAMES.map((n,i) =>
       `<div class="n${ON.has(i) ? ' on' : ''}">${n}</div>`).join('')}</div>

@@ -983,8 +983,8 @@ const personRow = p => `<div class="stat-row">
 </div>`;
 
 /* 차트 ---------------------------------------------------- */
-// 상단 모서리만 살짝 둥근 막대 (바닥은 기준선에 붙임)
-function barUp(x, y, w, h, r = 1) {
+// 상단 모서리만 둥근 막대 (바닥은 기준선에 붙임)
+function barUp(x, y, w, h, r = 4) {
   const rr = Math.min(r, w / 2, Math.max(h, 0));
   const b = y + h;
   return `M${x},${b} L${x},${y + rr} Q${x},${y} ${x + rr},${y} L${x + w - rr},${y} Q${x + w},${y} ${x + w},${y + rr} L${x + w},${b} Z`;
@@ -1040,8 +1040,8 @@ function groupChart(rows) {
       <title>${r.name} · 출석률 ${Math.round(r.rate * 100)}%</title>
       <text class="value-label" x="0" y="${y + 12}" style="font-size:12px">${esc(r.name)}</text>
       <text class="axis-label" x="0" y="${y + 24}">${r.size}명</text>
-      <path class="bar-track" d="${barRight(trackX, y, trackW, h, 1)}"/>
-      <path class="bar" d="${barRight(trackX, y, w, h, 1)}"/>
+      <path class="bar-track" d="${barRight(trackX, y, trackW, h, 8)}"/>
+      <path class="bar" d="${barRight(trackX, y, w, h, 8)}"/>
       <text class="value-label" x="${W}" y="${y + 12}" text-anchor="end">${Math.round(r.rate * 100)}%</text>
       <text class="axis-label" x="${W}" y="${y + 24}" text-anchor="end">평균 ${r.avg.toFixed(1)}명</text>
     </g>`;
@@ -1263,11 +1263,9 @@ function notesDialog() {
    기기마다 따로 기억한다 (공유 데이터가 아니라 각자의 취향) */
 const LS_THEME = 'bokwang.theme.v1';
 const THEMES = [
-  { k: 'blue',  n: '기본 블루',    g: '진하게' },
-  { k: 'sblue', n: '옅은 블루',    g: '옅게' },
-  { k: 'ssage', n: '옅은 세이지',   g: '옅게' },
-  { k: 'smono', n: '옅은 먹색',    g: '옅게' },
-  { k: 'sclay', n: '옅은 테라코타', g: '옅게' }
+  { k: 'blue',  n: '기본 블루' },
+  { k: 'ssage', n: '차분한 초록' },
+  { k: 'smono', n: '먹색' }
 ];
 
 function applyTheme(k) {
@@ -1460,10 +1458,7 @@ function renderSettings() {
   <p class="sect">화면 색 <span class="sect-now">${esc(themeName)}</span></p>
   <div class="card">
     <p class="sect-sub">이 기기에서만 바뀝니다. 리더마다 다르게 써도 됩니다.</p>
-    <p class="group-label">진하게 채우기 — 또렷합니다</p>
-    <div class="theme-list">${THEMES.filter(t => t.g === '진하게').map(t => themeRow(t, curTheme)).join('')}</div>
-    <p class="group-label">옅게 채우기 — 눈이 편합니다</p>
-    <div class="theme-list">${THEMES.filter(t => t.g === '옅게').map(t => themeRow(t, curTheme)).join('')}</div>
+    <div class="theme-list">${THEMES.map(t => themeRow(t, curTheme)).join('')}</div>
   </div>
 `;
 
