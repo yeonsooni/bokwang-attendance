@@ -3,17 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#171614" media="(prefers-color-scheme: dark)" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="청년부 출석부" />
 <title>보광중앙교회 청년부 출석부</title>
 <link rel="manifest" href="manifest.webmanifest" />
+<!-- 제목(명조)용 글꼴 — 제목에 쓰는 글자만 받아온다. 못 받아도 고딕으로 그대로 보인다 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&amp;text=0123456789%E2%80%94%EA%B4%91%EA%B5%90%EB%85%84%EB%B3%B4%EB%B6%80%EC%84%9D%EC%95%99%EC%9B%94%EC%9D%BC%EC%A3%BC%EC%A4%91%EC%B2%AD%EC%B6%9C%ED%9A%8C&amp;display=swap" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<!-- 데스크톱에서만 디바이스 프레임으로 감싸진다 (폰에서는 프레임 없이 전체화면) -->
+<!-- 넓은 화면에서는 가운데 한 단으로 놓인다 (폰에서는 전체화면) -->
 <div class="device">
 <div class="app">
 
@@ -92,7 +96,7 @@
     </section>
   </main>
 
-  <!-- 하단 플로팅 바 -->
+  <!-- 하단 탭 막대 -->
   <nav class="dock" role="tablist">
     <button class="dock-tab is-active" role="tab" data-tab="attendance" aria-selected="true">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>

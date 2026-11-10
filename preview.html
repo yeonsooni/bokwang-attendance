@@ -5,119 +5,124 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>색감 후보 비교 — 청년부 출석부</title>
 <style>
-/* 색감 비교용 페이지. 실제 명단이 아니라 샘플 이름을 씁니다. */
+/* 색감 비교용 페이지. 실제 명단이 아니라 샘플 이름을 씁니다.
+   앱(styles.css)과 같은 모양 — 종이 바탕 · 가는 선 · 거의 각진 칸 · 그림자 없음 */
 * { box-sizing: border-box; }
 body {
   margin: 0; padding: 0 0 70px;
-  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  background: #e9e9ec; color: #111;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  background: #ebe7df; color: #1f1d1a; -webkit-font-smoothing: antialiased;
 }
+.wrap { max-width: 520px; margin: 0 auto; }
 .intro {
   padding: calc(env(safe-area-inset-top) + 24px) 20px 18px;
-  background: #fff; border-bottom: 1px solid #ddd;
+  background: #f6f3ec; border-bottom: 1px solid #c4beb3;
 }
-.intro h1 { margin: 0 0 6px; font-size: 19px; letter-spacing: -.4px; }
-.intro p  { margin: 0 0 8px; font-size: 13px; line-height: 1.65; color: #555; }
+.intro h1 { margin: 0 0 10px; padding-bottom: 10px; border-bottom: 3px double #1f1d1a; font-size: 21px; letter-spacing: -.4px; }
+.intro p  { margin: 0 0 8px; font-size: 13.5px; line-height: 1.7; color: #5a564e; }
 .intro p:last-child { margin: 0; }
 
 .chapter {
-  margin: 0; padding: 26px 20px 4px;
-  font-size: 12px; font-weight: 700; letter-spacing: .3px; color: #444;
+  margin: 0; padding: 28px 20px 4px;
+  font-size: 13px; font-weight: 700; color: #1f1d1a;
 }
-.chapter small { display: block; margin-top: 5px; font-size: 12px; font-weight: 400; color: #777; line-height: 1.6; }
+.chapter small { display: block; margin-top: 5px; font-size: 12.5px; font-weight: 400; color: #6f6a60; line-height: 1.65; }
 
 .opt { padding: 16px 14px 22px; }
 .opt > h2 {
   margin: 0 0 3px; font-size: 15px; font-weight: 700; letter-spacing: -.3px;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: baseline; gap: 8px;
 }
-.opt > h2 .num {
-  width: 23px; height: 23px; border-radius: 7px; background: #111; color: #fff;
-  font-size: 12px; flex: none;
-  display: inline-flex; align-items: center; justify-content: center;
-}
-.opt > .why { margin: 0 0 14px 31px; font-size: 12.5px; color: #666; line-height: 1.6; }
+.opt > h2 .num { font-variant-numeric: tabular-nums; color: #8a8478; font-weight: 600; }
+.opt > .why { margin: 0 0 12px; font-size: 12.5px; color: #6f6a60; line-height: 1.6; }
 
 /* ── 미니 앱 화면 ─────────────────────────────────────── */
 .demo {
-  border-radius: 20px; overflow: hidden; padding: 18px 16px 16px;
-  background: var(--plane); color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 10px 26px rgba(0,0,0,.10);
+  border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+  padding: 14px 16px 0; background: var(--plane); color: var(--ink);
 }
-.demo .top { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 14px; }
-.demo .eyebrow { margin: 0 0 2px; font-size: 10.5px; color: var(--muted); }
-.demo .title { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -.5px; }
-.demo .ico { width: 30px; height: 30px; border-radius: 10px; flex: none; background: var(--surface); border: 1px solid var(--line); }
-.demo .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-.demo .date { text-align: center; font-size: 14px; font-weight: 700; margin-bottom: 12px; }
-.demo .date small { display: block; font-size: 10.5px; font-weight: 400; color: var(--muted); margin-top: 2px; }
-.demo .stat { display: flex; align-items: baseline; justify-content: space-between; }
-.demo .stat b { font-size: 27px; letter-spacing: -1px; }
+.demo .top {
+  display: flex; align-items: baseline; gap: 8px;
+  padding-bottom: 9px; border-bottom: 3px double var(--ink);
+}
+.demo .title { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.5px; }
+.demo .church { flex: 1; font-size: 10.5px; color: var(--muted); }
+.demo .date { text-align: center; font-size: 19px; font-weight: 700; letter-spacing: -.4px; margin: 12px 0 10px; }
+.demo .date small { display: block; font-size: 10.5px; font-weight: 500; color: var(--muted); margin-top: 2px; letter-spacing: 0; }
+.demo .stat { display: flex; align-items: baseline; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--hair); font-variant-numeric: tabular-nums; }
+.demo .stat b { font-size: 26px; letter-spacing: -.8px; }
 .demo .stat span { font-size: 11.5px; color: var(--muted); }
-.demo .stat .rate { font-size: 12px; font-weight: 700; color: var(--accent); }
-.demo .meter { margin-top: 10px; height: 5px; border-radius: 99px; background: var(--track); overflow: hidden; }
-.demo .meter i { display: block; height: 100%; width: 59%; background: var(--accent); border-radius: 99px; }
-.demo .label { font-size: 12px; font-weight: 700; margin: 0 2px 10px; }
-.demo .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.demo .stat .rate { font-size: 12px; font-weight: 700; color: var(--primary); }
+.demo .meter { margin-top: 9px; height: 3px; background: var(--track); }
+.demo .meter i { display: block; height: 100%; width: 59%; background: var(--primary); }
+.demo .label {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  font-size: 13px; font-weight: 700; margin: 16px 0 10px; border-bottom: 1px solid var(--hair);
+}
+.demo .label > span:first-child { padding-bottom: 6px; }
+.demo .label .tabs { display: flex; gap: 10px; font-size: 10.5px; font-weight: 500; color: var(--muted); }
+.demo .label .tabs span { padding-bottom: 6px; margin-bottom: -1px; }
+.demo .label .tabs .sel { color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--primary); }
+.demo .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
 .demo .n {
-  min-height: 52px; border-radius: 13px; display: flex; align-items: center; justify-content: center;
+  position: relative;
+  min-height: 46px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
   font-size: 12.5px; font-weight: 600; letter-spacing: -.4px;
   background: var(--surface); border: 1px solid var(--line); color: var(--ink);
 }
-.demo .n.on { background: var(--primary); border: 1.5px solid var(--edge); color: var(--on-ink); font-weight: 700; }
-/* 옅게 채우는 방식 — 배경은 연하게, 글씨를 진하게 */
-.demo.soft .n.on { background: var(--soft-fill); border: 2px solid var(--soft-edge); color: var(--soft-ink); font-weight: 700; }
-.demo .dock { margin: 16px auto 0; width: fit-content; display: flex; gap: 3px; padding: 4px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); }
-.demo .dock span { padding: 7px 13px; border-radius: 99px; font-size: 11.5px; font-weight: 600; color: var(--muted); }
-.demo .dock span.sel { background: var(--soft); color: var(--primary); font-weight: 700; }
+.demo .n.on { background: var(--fill); border: 2px solid var(--edge); color: var(--on-ink); font-weight: 700; }
+.demo .n.on::after {
+  content: ""; position: absolute; top: 4px; right: 4px; width: 6px; height: 3px;
+  border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg);
+}
+.demo .dock {
+  margin: 14px -16px 0; display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+}
+.demo .dock span { padding: 9px 0; text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); }
+.demo .dock span.sel { color: var(--ink); font-weight: 700; box-shadow: inset 0 2px 0 var(--primary); }
 
-/* ═══ 진하게 채우는 방식 ═══════════════════════════════ */
-.p-now   { --plane:#f8fafc; --surface:#fff;    --line:#e2e8f0; --track:#f1f5f9; --ink:#0f172a; --muted:#94a3b8; --primary:#41609c; --on-ink:#fff; --soft:#eef2f9; --accent:#10b981;  --edge:#375183; }
-
-/* ═══ 옅게 채우는 방식 ═════════════════════════════════ */
-.s-blue  { --plane:#f7f8fa; --surface:#fff;    --line:#e4e7ec; --track:#eef1f5; --ink:#1b2430; --muted:#98a2b0; --primary:#41609c; --on-ink:#fff; --soft:#eef2f9; --accent:#3f8f72;
-           --soft-fill:#dfe7f4; --soft-edge:#8ba5d2; --soft-ink:#26406e; }
-.s-sage  { --plane:#f6f4ef; --surface:#fffdf9; --line:#e6e1d6; --track:#eae5da; --ink:#2b2823; --muted:#918a7c; --primary:#6b7f6a; --on-ink:#fff; --soft:#eaefe8; --accent:#8a9a5b;
-           --soft-fill:#e0e8dd; --soft-edge:#9db594; --soft-ink:#3c503a; }
-.s-mono  { --plane:#f4f4f2; --surface:#fff;    --line:#e3e3df; --track:#ececea; --ink:#1c1c1a; --muted:#8c8c86; --primary:#3f3f3c; --on-ink:#fff; --soft:#ececea; --accent:#6b7a5e;
-           --soft-fill:#e4e4e0; --soft-edge:#a9a9a1; --soft-ink:#2a2a27; }
-.s-clay  { --plane:#f7f3f0; --surface:#fffcfa; --line:#e8ded7; --track:#eee4dd; --ink:#2e2724; --muted:#9c8b81; --primary:#a8674f; --on-ink:#fff; --soft:#f3e7e1; --accent:#7d8b6a;
-           --soft-fill:#f0ded5; --soft-edge:#c99b84; --soft-ink:#7d4632; }
+/* ═══ 테마 값 — styles.css 의 [data-theme-name] 과 같다 ═══ */
+.t-blue  { --plane:#f6f3ec; --surface:#fffdf8; --hair:#e3ddd0; --line:#c4beb3; --track:#ece9e3; --ink:#1f1d1a; --muted:#8a8478; --primary:#2c4a7c; --fill:#2c4a7c; --edge:#253e68; --on-ink:#fff; }
+.t-sblue { --plane:#f5f4f0; --surface:#fffefb; --hair:#e1ded6; --line:#c2c0bb; --track:#ebeae6; --ink:#1e2430; --muted:#8b909a; --primary:#2f4f86; --fill:#dbe4f3; --edge:#4e6998; --on-ink:#223960; }
+.t-ssage { --plane:#f3f1ea; --surface:#fcfbf6; --hair:#dfdbd0; --line:#c1beb4; --track:#e9e7e1; --ink:#262620; --muted:#8a877b; --primary:#4f6a4e; --fill:#dbe5d6; --edge:#698069; --on-ink:#394c38; }
+.t-smono { --plane:#f4f2ee; --surface:#fdfcf9; --hair:#e1ded7; --line:#c1bfb8; --track:#eae8e4; --ink:#1a1a18; --muted:#87857f; --primary:#2b2b29; --fill:#e2e0da; --edge:#4b4b49; --on-ink:#1f1f1e; }
+.t-sclay { --plane:#f6f1ea; --surface:#fffcf7; --hair:#e6dccf; --line:#c8bfb3; --track:#ece7e1; --ink:#2b2420; --muted:#978a7e; --primary:#9a5a41; --fill:#f0dccf; --edge:#a9735e; --on-ink:#6f412f; }
 </style>
 </head>
 <body>
+<div class="wrap">
 
 <div class="intro">
-  <h1>색감 후보 비교</h1>
-  <p>아래로 내려보시고 마음에 드는 <b>번호</b>를 알려주세요.
-  섞어도 됩니다 — "6번인데 배경은 2번처럼" 같은 것도요.</p>
-  <p><b>5개 모두 앱에 들어가 있습니다.</b> ⚙ 설정 → 화면 색 에서 언제든 바꿀 수 있고,
+  <h1>화면 색 비교</h1>
+  <p>앱에 들어 있는 다섯 가지 화면 색입니다.</p>
+  <p> ⚙ 설정 → 화면 색 에서 언제든 바꿀 수 있고,
   기기마다 따로 기억되니 리더별로 다르게 써도 됩니다.</p>
   <p>이름은 실제 명단이 아니라 샘플입니다.</p>
 </div>
 
 <p class="chapter">진하게 채우는 방식
-  <small>체크된 카드를 색으로 꽉 채웁니다. 또렷하지만 체크가 많아지면 화면이 무거워집니다.</small></p>
+  <small>체크된 칸을 색으로 꽉 채웁니다. 또렷하지만 체크가 많아지면 화면이 무거워집니다.</small></p>
 
-<section class="opt"><h2><span class="num">1</span>지금 색</h2>
-  <p class="why">비교 기준.</p><div class="demo p-now"></div></section>
+<section class="opt"><h2><span class="num">1</span>기본 블루</h2>
+  <p class="why">처음 설정된 색. 체크된 칸이 가장 또렷합니다.</p><div class="demo t-blue"></div></section>
 
 <p class="chapter">옅게 채우는 방식
-  <small>체크된 카드를 <b>연한 색으로 칠하고 글씨를 진하게</b> 합니다.
-  화면이 훨씬 가벼워집니다. 대신 채움 색이 옅어 구분이 약해지므로
-  <b>테두리를 또렷하게</b> 넣었습니다. 햇빛 아래서도 한눈에 들어오는지 꼭 확인해 주세요.</small></p>
+  <small>체크된 칸을 <b>연한 색으로 칠하고 글씨를 진하게</b> 합니다.
+  화면이 훨씬 가벼워집니다. 대신 구분이 약해지지 않도록
+  <b>진한 테두리와 체크 표시</b>를 함께 넣었습니다.</small></p>
 
 <section class="opt"><h2><span class="num">2</span>옅은 블루</h2>
-  <p class="why">지금 색을 옅게만 바꾼 것. 변화가 가장 적습니다.</p><div class="demo soft s-blue"></div></section>
+  <p class="why">기본 블루를 옅게. 변화가 가장 적습니다.</p><div class="demo t-sblue"></div></section>
 
 <section class="opt"><h2><span class="num">3</span>옅은 세이지</h2>
-  <p class="why">2번을 옅게. 가장 잔잔합니다.</p><div class="demo soft s-sage"></div></section>
+  <p class="why">초록빛이 도는 회색. 가장 잔잔합니다.</p><div class="demo t-ssage"></div></section>
 
 <section class="opt"><h2><span class="num">4</span>옅은 먹색</h2>
-  <p class="why">3번을 옅게. 색이 거의 없이 담백합니다.</p><div class="demo soft s-mono"></div></section>
+  <p class="why">색이 거의 없이 먹색만. 담백합니다.</p><div class="demo t-smono"></div></section>
 
 <section class="opt"><h2><span class="num">5</span>옅은 테라코타</h2>
-  <p class="why">5번을 옅게. 따뜻하면서 부담 없습니다.</p><div class="demo soft s-clay"></div></section>
+  <p class="why">붉은 흙빛. 따뜻하면서 부담 없습니다.</p><div class="demo t-sclay"></div></section>
 
 <script>
 const NAMES = ['김민준','이서윤','박도윤','최지우','정하준','강서아','조은우','윤아린','임시우','한예린','오지훈','신수아','권민서','황건우','안소율'];
@@ -126,25 +131,20 @@ const ON = new Set([0,1,3,4,6,7,8,10,11,13]);
 document.querySelectorAll('.demo').forEach(d => {
   d.innerHTML = `
     <div class="top">
-      <div style="flex:1">
-        <p class="eyebrow">보광중앙교회 · ys_shin</p>
-        <p class="title">청년부 출석부</p>
-      </div>
-      <div class="ico"></div><div class="ico"></div>
+      <p class="title">청년부 출석부</p><span class="church">보광중앙교회</span>
     </div>
-    <div class="card">
-      <div class="date">8월 16일<small>2026년 · 주일</small></div>
-      <div class="stat">
-        <div><b>39</b> <span>/ 66명</span></div>
-        <div class="rate">출석률 59%</div>
-      </div>
-      <div class="meter"><i></i></div>
+    <div class="date">8월 16일<small>2026년 · 주일</small></div>
+    <div class="stat">
+      <div><b>39</b> <span>/ 66명</span></div>
+      <div class="rate">출석률 59%</div>
     </div>
-    <p class="label">명단</p>
+    <div class="meter"><i></i></div>
+    <div class="label"><span>명단</span><span class="tabs"><span class="sel">가까이 앉는 대로</span><span>가나다 순</span><span>소그룹별</span></span></div>
     <div class="grid">${NAMES.map((n,i) =>
       `<div class="n${ON.has(i) ? ' on' : ''}">${n}</div>`).join('')}</div>
     <div class="dock"><span class="sel">출석</span><span>통계</span><span>소그룹</span></div>`;
 });
 </script>
+</div>
 </body>
 </html>

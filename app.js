@@ -850,14 +850,14 @@ function renderStats() {
     <h2>챙겨야 할 사람 <span class="badge">${st.care.length}</span></h2>
     <p class="sub">연속 3~4회 빠진 분들이에요. 지금 연락하기 좋은 때예요.</p>
     ${st.care.length ? st.care.map(careRow).join('')
-      : '<div class="empty" style="padding:18px">연속 3~4회 빠진 사람은 없어요 👍</div>'}
+      : '<div class="empty" style="padding:18px">연속 3~4회 빠진 사람은 없어요</div>'}
   </div>
 
   <div class="card">
     <h2>잘 나오다가 갑자기 안 나온 사람 <span class="badge">${st.drops.length}</span></h2>
     <p class="sub">이전 8회를 절반 이상 나오던 분 중, 최근 4회 출석이 35%p 이상 떨어진 분들이에요.</p>
     ${st.drops.length ? st.drops.map(dropRow).join('')
-      : '<div class="empty" style="padding:18px">출석이 갑자기 떨어진 사람은 없어요 👍</div>'}
+      : '<div class="empty" style="padding:18px">출석이 갑자기 떨어진 사람은 없어요</div>'}
     <p class="legend-note">연속 결석과는 다른 기준이에요. 매주 오다 3주 내리 빠진 분도,
     매주 오다 격주로 바뀐 분도 여기 잡힙니다.</p>
   </div>
@@ -866,7 +866,7 @@ function renderStats() {
     <h2>발걸음이 뜸한 사람 <span class="badge">${st.away.length}</span></h2>
     <p class="sub">연속 5회 이상 못 뵌 분들이에요.</p>
     ${st.away.length ? st.away.map(careRow).join('')
-      : '<div class="empty" style="padding:18px">연속 5회 이상 빠진 사람은 없어요 👍</div>'}
+      : '<div class="empty" style="padding:18px">연속 5회 이상 빠진 사람은 없어요</div>'}
     ${st.never.length ? `<p class="legend-note">명단에 있지만 기록된 ${st.sessions.length}회 모임에
       한 번도 출석이 없는 분 ${st.never.length}명 — ${st.never.map(esc).join(', ')}</p>` : ''}
   </div>
@@ -945,7 +945,7 @@ function renderGroups() {
   html += `<div class="card">
     <div class="ghead"><h2>미배정</h2><span class="cnt">${unassigned.length}명</span></div>
     <div class="chips">${unassigned.length ? chips(unassigned)
-      : '<span class="chip muted">모두 배치 완료 🎉</span>'}</div>
+      : '<span class="chip muted">모두 배치 완료</span>'}</div>
   </div>
   <button class="btn primary block" id="btn-add-group">+ 소그룹 만들기</button>`;
 
@@ -983,8 +983,8 @@ const personRow = p => `<div class="stat-row">
 </div>`;
 
 /* 차트 ---------------------------------------------------- */
-// 상단 모서리만 둥근 막대 (바닥은 기준선에 붙임)
-function barUp(x, y, w, h, r = 7) {
+// 상단 모서리만 살짝 둥근 막대 (바닥은 기준선에 붙임)
+function barUp(x, y, w, h, r = 1) {
   const rr = Math.min(r, w / 2, Math.max(h, 0));
   const b = y + h;
   return `M${x},${b} L${x},${y + rr} Q${x},${y} ${x + rr},${y} L${x + w - rr},${y} Q${x + w},${y} ${x + w},${y + rr} L${x + w},${b} Z`;
@@ -1001,7 +1001,7 @@ function weeklyChart(weekly, total) {
   const plotW = W - PAD_L - PAD_R;
   const plotH = H - TOP - BOTTOM;
   const slot = plotW / n;
-  const bw = Math.max(6, Math.min(30, slot - 6));   // 막대 사이 간격 확보
+  const bw = Math.max(6, Math.min(16, slot - 10));  // 가는 막대 · 막대 사이 간격 확보
   const max = Math.max(1, total, ...weekly.map(w => w.count));
 
   const bars = weekly.map((w, i) => {
@@ -1040,8 +1040,8 @@ function groupChart(rows) {
       <title>${r.name} · 출석률 ${Math.round(r.rate * 100)}%</title>
       <text class="value-label" x="0" y="${y + 12}" style="font-size:12px">${esc(r.name)}</text>
       <text class="axis-label" x="0" y="${y + 24}">${r.size}명</text>
-      <path class="bar-track" d="${barRight(trackX, y, trackW, h, 8)}"/>
-      <path class="bar" d="${barRight(trackX, y, w, h, 8)}"/>
+      <path class="bar-track" d="${barRight(trackX, y, trackW, h, 1)}"/>
+      <path class="bar" d="${barRight(trackX, y, w, h, 1)}"/>
       <text class="value-label" x="${W}" y="${y + 12}" text-anchor="end">${Math.round(r.rate * 100)}%</text>
       <text class="axis-label" x="${W}" y="${y + 24}" text-anchor="end">평균 ${r.avg.toFixed(1)}명</text>
     </g>`;
