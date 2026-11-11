@@ -1118,7 +1118,7 @@ function memberActions(id) {
       <button class="btn" id="m-rename">이름 수정</button>
       <button class="btn" id="m-group">소그룹 정하기</button>
       ${away ? `<button class="btn" id="m-reason">부재 사유 수정</button>` : ''}
-      <button class="btn" id="m-leave">${away ? `${week}부터 복귀` : `${week}부터 장기 부재`}</button>
+      <button class="btn" id="m-leave">${away ? '복귀시키기' : '장기부재로 옮기기'}</button>
       <button class="btn danger" id="m-del">명단에서 삭제</button>
       <button class="btn" data-close>닫기</button>
     </div>`,
@@ -1134,7 +1134,7 @@ function memberActions(id) {
     // 부재/복귀는 '보고 있는 주'를 경계로 삼는다 → 이전 주 기록은 그대로 부재로 남는다
     $('#m-leave', sh).onclick  = () => { close();
       away ? backend.updateMember(id, { leaveTo: currentDate })
-               .then(() => toast(`${m.name} · ${week}부터 복귀`))
+               .then(() => toast(`${m.name} 님을 복귀시켰어요`))
            : leaveDialog(id); };
     $('#m-del', sh).onclick    = () => { close();
       confirmDialog(`${m.name} 삭제`, '출석 기록도 함께 지워집니다. 되돌릴 수 없어요.', '삭제',
@@ -1147,8 +1147,8 @@ function leaveDialog(memberId) {
   const m = S.members.find(x => x.id === memberId); if (!m) return;
   const presets = ['군 복무', '유학', '타지 거주', '건강', '장기 출타'];
   const week = prettyDate(currentDate).main;
-  openSheet(`<h2>${esc(m.name)} · 장기 부재</h2>
-    <p class="sub"><b>${esc(week)}부터</b> 부재로 처리합니다. 그 이전 주 기록은 건드리지 않아요.
+  openSheet(`<h2>${esc(m.name)} · 장기부재로 옮기기</h2>
+    <p class="sub">사유를 고르면 장기부재로 옮겨요.
     명단과 지난 출석 기록은 그대로 남고 <b>통계에서만 빠집니다</b> —
     챙겨야 할 사람·발걸음이 뜸한 사람·출석률 분모 모두에서요.</p>
     <div class="menu">
@@ -1159,7 +1159,7 @@ function leaveDialog(memberId) {
   (sh, close) => {
     const mark = reason =>
       backend.updateMember(memberId, { leaveReason: reason, leaveFrom: currentDate, leaveTo: null })
-        .then(() => toast(`${m.name} · ${week}부터 ${reason}`));
+        .then(() => toast(`${m.name} 님을 장기부재로 옮겼어요 (${reason})`));
     $$('[data-r]', sh).forEach(b => b.onclick = () => { close(); mark(b.dataset.r); });
     $('#l-etc', sh).onclick = () => { close();
       promptDialog('장기 부재 사유', '예: 파견 근무', '', v => mark(v)); };
